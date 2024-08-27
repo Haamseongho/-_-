@@ -7,18 +7,55 @@
 
 import UIKit
 import WebKit
+import CoreLocation
 
-class ViewController: UIViewController, WKNavigationDelegate {
+class ViewController: UIViewController, WKNavigationDelegate, CLLocationManagerDelegate {
     var webView: WKWebView!
-    
+    let locationManager = CLLocationManager()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-       
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization() // 위치 권한 요청
+        locationManager.startUpdatingLocation() // 위치 업데이트 시작
+    }
+    // 위치 업데이트 시 호출되는 메서드
+     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+         if let location = locations.first {
+             fetchAddress(from: location)
+         }
+     }
+    // 위치 업데이트 실패 시 호출되는 메서드
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to get user's location: \(error.localizedDescription)")
+    }
+
+    // 주소 정보를 가져오는 메서드
+    func fetchAddress(from location: CLLocation) {
+        let geocoder = CLGeocoder()
+        let locale = Locale(identifier: "en_US")
+        geocoder.reverseGeocodeLocation(location, preferredLocale: locale) { placemarks, error in
+            if let error = error {
+                print("Error in reverse geocoding: \(error.localizedDescription)")
+            } else if let placemarks = placemarks, let placemark = placemarks.first {
+                let address = """
+                \(placemark.name ?? ""), \(placemark.locality ?? ""), \
+                \(placemark.administrativeArea ?? ""), \(placemark.country ?? "") , \(placemark.isoCountryCode ?? "")
+                """
+                print("Address: \(address)")
+            }
+        }
     }
     
     @IBAction func openWebView(_ sender: UIButton) {
-        webView = WKWebView(frame: self.view.frame)
+        let width = self.view.frame.width / 2
+        let height = self.view.frame.height / 2
+        let xPosition = self.view.frame.size.width / 4
+        let yPosition = self.view.frame.size.height / 4
+        
+        // webView = WKWebView(frame: self.view.frame)
+        webView = WKWebView(frame: CGRect(x: xPosition, y: yPosition, width: width, height: height))
         webView.navigationDelegate = self
         self.view.addSubview(webView)
         // 로드할 URL 설정

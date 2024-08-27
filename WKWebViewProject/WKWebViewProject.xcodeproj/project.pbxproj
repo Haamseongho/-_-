@@ -35,6 +35,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		20ABF6E02C787984004F4BE9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		20ABF6912C78551F004F4BE9 /* WKWebViewProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WKWebViewProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		20ABF6942C78551F004F4BE9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +62,8 @@
 		20ABF6B12C785521004F4BE9 /* WKWebViewProjectUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WKWebViewProjectUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20ABF6B52C785521004F4BE9 /* WKWebViewProjectUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKWebViewProjectUITests.swift; sourceTree = "<group>"; };
 		20ABF6B72C785521004F4BE9 /* WKWebViewProjectUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKWebViewProjectUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		20ABF6CA2C787981004F4BE9 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		20ABF6CC2C787982004F4BE9 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +97,7 @@
 				20ABF6932C78551F004F4BE9 /* WKWebViewProject */,
 				20ABF6AA2C785521004F4BE9 /* WKWebViewProjectTests */,
 				20ABF6B42C785521004F4BE9 /* WKWebViewProjectUITests */,
+				20ABF6C92C787981004F4BE9 /* Frameworks */,
 				20ABF6922C78551F004F4BE9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -127,6 +143,15 @@
 			path = WKWebViewProjectUITests;
 			sourceTree = "<group>";
 		};
+		20ABF6C92C787981004F4BE9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				20ABF6CA2C787981004F4BE9 /* WidgetKit.framework */,
+				20ABF6CC2C787982004F4BE9 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -137,6 +162,7 @@
 				20ABF68D2C78551F004F4BE9 /* Sources */,
 				20ABF68E2C78551F004F4BE9 /* Frameworks */,
 				20ABF68F2C78551F004F4BE9 /* Resources */,
+				20ABF6E02C787984004F4BE9 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);

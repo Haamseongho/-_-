@@ -9,6 +9,34 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>WidgetTestExtension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>20ABF6902C78551F004F4BE9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>20ABF6A62C785521004F4BE9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>20ABF6B02C785521004F4BE9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>20ABF6C72C787981004F4BE9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 	</dict>
 </dict>
 </plist>
