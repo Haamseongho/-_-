@@ -1,0 +1,72 @@
+CONNECTED(00000005)
+---
+Certificate chain
+ 0 s:CN = *.news.google.com
+   i:C = KR, O = Somansa, CN = Somansa Root CA
+   a:PKEY: id-ecPublicKey, 256 (bit); sigalg: RSA-SHA256
+   v:NotBefore: Jul 30 12:49:47 2024 GMT; NotAfter: Oct 22 12:49:46 2024 GMT
+ 1 s:C = KR, O = Somansa, CN = Somansa Root CA
+   i:C = KR, O = Somansa, CN = Somansa Root CA
+   a:PKEY: rsaEncryption, 2048 (bit); sigalg: RSA-SHA256
+   v:NotBefore: Jan 15 04:42:53 2018 GMT; NotAfter: Jul 10 04:42:53 2049 GMT
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+MIICmjCCAYKgAwIBAgIRfCNXwzPNQ9Z+CjILHtmKRmcwDQYJKoZIhvcNAQELBQAw
+OTELMAkGA1UEBhMCS1IxEDAOBgNVBAoTB1NvbWFuc2ExGDAWBgNVBAMTD1NvbWFu
+c2EgUm9vdCBDQTAeFw0yNDA3MzAxMjQ5NDdaFw0yNDEwMjIxMjQ5NDZaMBwxGjAY
+BgNVBAMMESoubmV3cy5nb29nbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcD
+QgAEQWy4dmGgmg6dHH0FjQDFXqez1YKkPxx3o3azfO/LnH8NUZw6qGkQQrxPAqDZ
+tGBg4y0iAaYcBdlT/T904P+E2aOBhDCBgTAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0l
+BAwwCgYIKwYBBQUHAwEwDAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUZo+AEZXb1JaC
+8EbFGCUO0B8t0AkwLQYDVR0RBCYwJIIRKi5uZXdzLmdvb2dsZS5jb22CD25ld3Mu
+Z29vZ2xlLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAB7rG52xSJUEHOvOg4TXZL4aW
+q6o7khZlZes0AuB3gxoYe7GC42bPKqChsztUSYXdZw9K1Ta+JkUD4tt1x/sshNtf
+Go7BbGlHbZlsj1IY8yrdgmdwZMSKhTYeIpO5XqV0l00wXZRRqzYnmIANPb3MlN30
+ZJejboKaB3YEwu7SQV3zc2q4gUTD+CANQqT7JHSkFdb4AvoJO4o1Wprni29sJMXo
+tjI7BXeO/KX9ik9hVYgrJ9rYo87OzEWQ6Dhqa/SfhOQjqvH3u0wA1H2PH3mhfyxj
+MS1sI4UeiufnsgVXnlZ5Gp3wPEARhmVCGgsExoVusiMiTfyJwkiRIbI4SRJBSA==
+-----END CERTIFICATE-----
+subject=CN = *.news.google.com
+issuer=C = KR, O = Somansa, CN = Somansa Root CA
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: ECDSA
+Server Temp Key: X25519, 253 bits
+---
+SSL handshake has read 1967 bytes and written 401 bytes
+Verification error: self-signed certificate in certificate chain
+---
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Server public key is 256 bit
+Secure Renegotiation IS NOT supported
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+Early data was not sent
+Verify return code: 19 (self-signed certificate in certificate chain)
+---
+---
+Post-Handshake New Session Ticket arrived:
+SSL-Session:
+    Protocol  : TLSv1.3
+    Cipher    : TLS_AES_256_GCM_SHA384
+    Session-ID: 157E61E22CD74ECF96EECAD79B2C8CBA755E18D8F4E0D930DE32A2A25E8BE9AB
+    Session-ID-ctx: 
+    Resumption PSK: E10386798053C534743D620F75C0D6FF9BF1675758051014941108D42644044D74FE9B107124C6D0F68B313F8EE4DE2E
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    TLS session ticket lifetime hint: 7200 (seconds)
+    TLS session ticket:
+    0000 - f1 07 4b 98 10 d5 b2 2b-b3 30 8c f2 e2 bf f3 65   ..K....+.0.....e
+    0010 - 43 12 9f fe bc ae d0 73-7d 48 74 47 6d 71 5e a0   C......s}HtGmq^.
+
+    Start Time: 1724994986
+    Timeout   : 7200 (sec)
+    Verify return code: 19 (self-signed certificate in certificate chain)
+    Extended master secret: no
+    Max Early Data: 0
+---
+read R BLOCK

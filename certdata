@@ -1,0 +1,66 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            7c:23:57:c3:33:cd:43:d6:7e:0a:32:0b:1e:d9:8a:46:67
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C = KR, O = Somansa, CN = Somansa Root CA
+        Validity
+            Not Before: Jul 30 12:49:47 2024 GMT
+            Not After : Oct 22 12:49:46 2024 GMT
+        Subject: CN = *.news.google.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:41:6c:b8:76:61:a0:9a:0e:9d:1c:7d:05:8d:00:
+                    c5:5e:a7:b3:d5:82:a4:3f:1c:77:a3:76:b3:7c:ef:
+                    cb:9c:7f:0d:51:9c:3a:a8:69:10:42:bc:4f:02:a0:
+                    d9:b4:60:60:e3:2d:22:01:a6:1c:05:d9:53:fd:3f:
+                    74:e0:ff:84:d9
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Subject Key Identifier: 
+                66:8F:80:11:95:DB:D4:96:82:F0:46:C5:18:25:0E:D0:1F:2D:D0:09
+            X509v3 Subject Alternative Name: 
+                DNS:*.news.google.com, DNS:news.google.com
+    Signature Algorithm: sha256WithRSAEncryption
+    Signature Value:
+        07:ba:c6:e7:6c:52:25:41:07:3a:f3:a0:e1:35:d9:2f:86:96:
+        ab:aa:3b:92:16:65:65:eb:34:02:e0:77:83:1a:18:7b:b1:82:
+        e3:66:cf:2a:a0:a1:b3:3b:54:49:85:dd:67:0f:4a:d5:36:be:
+        26:45:03:e2:db:75:c7:fb:2c:84:db:5f:1a:8e:c1:6c:69:47:
+        6d:99:6c:8f:52:18:f3:2a:dd:82:67:70:64:c4:8a:85:36:1e:
+        22:93:b9:5e:a5:74:97:4d:30:5d:94:51:ab:36:27:98:80:0d:
+        3d:bd:cc:94:dd:f4:64:97:a3:6e:82:9a:07:76:04:c2:ee:d2:
+        41:5d:f3:73:6a:b8:81:44:c3:f8:20:0d:42:a4:fb:24:74:a4:
+        15:d6:f8:02:fa:09:3b:8a:35:5a:9a:e7:8b:6f:6c:24:c5:e8:
+        b6:32:3b:05:77:8e:fc:a5:fd:8a:4f:61:55:88:2b:27:da:d8:
+        a3:ce:ce:cc:45:90:e8:38:6a:6b:f4:9f:84:e4:23:aa:f1:f7:
+        bb:4c:00:d4:7d:8f:1f:79:a1:7f:2c:63:31:2d:6c:23:85:1e:
+        8a:e7:e7:b2:05:57:9e:56:79:1a:9d:f0:3c:40:11:86:65:42:
+        1a:0b:04:c6:85:6e:b2:23:22:4d:fc:89:c2:48:91:21:b2:38:
+        49:12:41:48
+-----BEGIN CERTIFICATE-----
+MIICmjCCAYKgAwIBAgIRfCNXwzPNQ9Z+CjILHtmKRmcwDQYJKoZIhvcNAQELBQAw
+OTELMAkGA1UEBhMCS1IxEDAOBgNVBAoTB1NvbWFuc2ExGDAWBgNVBAMTD1NvbWFu
+c2EgUm9vdCBDQTAeFw0yNDA3MzAxMjQ5NDdaFw0yNDEwMjIxMjQ5NDZaMBwxGjAY
+BgNVBAMMESoubmV3cy5nb29nbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcD
+QgAEQWy4dmGgmg6dHH0FjQDFXqez1YKkPxx3o3azfO/LnH8NUZw6qGkQQrxPAqDZ
+tGBg4y0iAaYcBdlT/T904P+E2aOBhDCBgTAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0l
+BAwwCgYIKwYBBQUHAwEwDAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUZo+AEZXb1JaC
+8EbFGCUO0B8t0AkwLQYDVR0RBCYwJIIRKi5uZXdzLmdvb2dsZS5jb22CD25ld3Mu
+Z29vZ2xlLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAB7rG52xSJUEHOvOg4TXZL4aW
+q6o7khZlZes0AuB3gxoYe7GC42bPKqChsztUSYXdZw9K1Ta+JkUD4tt1x/sshNtf
+Go7BbGlHbZlsj1IY8yrdgmdwZMSKhTYeIpO5XqV0l00wXZRRqzYnmIANPb3MlN30
+ZJejboKaB3YEwu7SQV3zc2q4gUTD+CANQqT7JHSkFdb4AvoJO4o1Wprni29sJMXo
+tjI7BXeO/KX9ik9hVYgrJ9rYo87OzEWQ6Dhqa/SfhOQjqvH3u0wA1H2PH3mhfyxj
+MS1sI4UeiufnsgVXnlZ5Gp3wPEARhmVCGgsExoVusiMiTfyJwkiRIbI4SRJBSA==
+-----END CERTIFICATE-----
