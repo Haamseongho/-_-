@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 class ViewController: UIViewController {
+    let defaults = UserDefaults.standard
     
     var persistentContainer: NSPersistentContainer? {
         (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer
@@ -42,7 +43,7 @@ class ViewController: UIViewController {
         
         print(jobs?.first?.id)
         print(jobs?.first?.name)
-        
+        defaults.setValue(jobs?.first?.name, forKey: "name")
     }
     
     func updateData(){
@@ -58,6 +59,7 @@ class ViewController: UIViewController {
         try? context.save()
         
         print(jobs.first?.name)
+        
     }
     
     @IBAction func btnRemoveData(_ sender: UIButton) {
@@ -76,6 +78,14 @@ class ViewController: UIViewController {
         try? context.save()
         
         print(jobs)
+        print(defaults.string(forKey: "name"))
+        let alertController = UIAlertController(title: "name", message: defaults.string(forKey: "name"), preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "확인", style: .default) { (action) in
+            self.dismiss(animated: true)
+        }
+        alertController.addAction(okAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
 }
 

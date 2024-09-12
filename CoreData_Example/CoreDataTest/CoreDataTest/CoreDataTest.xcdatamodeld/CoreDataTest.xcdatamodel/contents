@@ -6,6 +6,7 @@
         <relationship name="jobs" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Job2"/>
     </entity>
     <entity name="User" representedClassName="User" syncable="YES" codeGenerationType="class">
+        <attribute name="commdata" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
