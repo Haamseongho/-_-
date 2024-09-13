@@ -28,7 +28,7 @@ class ViewController: UIViewController {
         changeNumberField.placeholder = "변경할 번호를 적어주세요"
         // Realm 파일을 저장할 경로 설정 (macOS 앱의 경우)
         
-        let config = Realm.Configuration(schemaVersion: 2)
+        let config = Realm.Configuration(schemaVersion: 4)
         Realm.Configuration.defaultConfiguration = config
         print("fileUrl: \(Realm.Configuration.defaultConfiguration.fileURL)")
     }
@@ -36,6 +36,10 @@ class ViewController: UIViewController {
     @IBAction func removeData(_ sender: UIButton) {
         let realm = try! Realm()
         let result = realm.objects(PhoneBook.self).filter(NSPredicate(format: "name = %@", nameTxtField2.text ?? ""))
+        // let result = realm.objects(PhoneBook.self).filter("name = %@", nameTxtField2.text ?? "")
+//        let result = realm.objects(PhoneBook.self).where {
+//            $0.name == nameTxtField2.text ?? ""
+//        }
         try! realm.write {
             realm.delete(result)
         }
@@ -62,8 +66,9 @@ class ViewController: UIViewController {
         let result = phoneBook.filter(predicateQuery)
         print("result : \(result)")
         
+        // result[0]
         DispatchQueue.main.async {
-            let alertController = UIAlertController(title: "\(self.nameTxtField2!.text)님의 전화번호입니다.", message: result.first?.number, preferredStyle: .alert)
+            let alertController = UIAlertController(title: "찾는 분의 번호입니다.", message: result.first?.number, preferredStyle: .alert)
             let okAction = UIAlertAction(title: "확인", style: .default) { (action) in
                 self.dismiss(animated: true)
             }

@@ -9,7 +9,8 @@ import Foundation
 import RealmSwift
 
 class PhoneBook: Object {
-    @Persisted(primaryKey: true) var number: String?
+    @Persisted(primaryKey: true) var _id: Int
+    @Persisted var number: String?
     // @objc dynamic var name: String?
     @Persisted var name: String? 
 
