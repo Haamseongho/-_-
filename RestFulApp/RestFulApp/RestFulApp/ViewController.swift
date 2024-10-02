@@ -6,14 +6,14 @@
 //
 
 import UIKit
-import Fir
-class ViewController: UIViewController {
+import Alamofire
 
+class ViewController: UIViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
     }
-
 
 }
 

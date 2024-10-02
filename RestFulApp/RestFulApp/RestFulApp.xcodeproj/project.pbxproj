@@ -17,8 +17,10 @@
 		204860D62C8FD560006BC8A6 /* RestFulAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204860D52C8FD560006BC8A6 /* RestFulAppUITests.swift */; };
 		204860D82C8FD560006BC8A6 /* RestFulAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204860D72C8FD560006BC8A6 /* RestFulAppUITestsLaunchTests.swift */; };
 		204860E52C8FD63F006BC8A6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 204860E42C8FD63F006BC8A6 /* GoogleService-Info.plist */; };
+		207DF0D72CACCA8500C834FE /* Pods_RestFulApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */; };
+		207DF0D82CACCA8500C834FE /* Pods_RestFulApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */; };
 		46B65A1C4ECAC9BD37941924 /* Pods_RestFulApp_RestFulAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 548C389C8E4B112F01E500C9 /* Pods_RestFulApp_RestFulAppTests.framework */; };
-		9E9997F4EF0BCBE07714A96F /* Pods_RestFulApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */; };
 		FC53D1218FB64F0C3E3C43A3 /* Pods_RestFulApp_RestFulAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8D1AD0A7F81B28BC71DF849 /* Pods_RestFulApp_RestFulAppUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +41,20 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		207DF0D92CACCA8600C834FE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				207DF0D82CACCA8500C834FE /* Pods_RestFulApp.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		204860B12C8FD55E006BC8A6 /* RestFulApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RestFulApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		204860B42C8FD55E006BC8A6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -54,6 +70,7 @@
 		204860D52C8FD560006BC8A6 /* RestFulAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestFulAppUITests.swift; sourceTree = "<group>"; };
 		204860D72C8FD560006BC8A6 /* RestFulAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestFulAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		204860E42C8FD63F006BC8A6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarController.swift; sourceTree = "<group>"; };
 		32DDB468D01CE95D83987742 /* Pods-RestFulApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RestFulApp.release.xcconfig"; path = "Target Support Files/Pods-RestFulApp/Pods-RestFulApp.release.xcconfig"; sourceTree = "<group>"; };
 		36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RestFulApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		548C389C8E4B112F01E500C9 /* Pods_RestFulApp_RestFulAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RestFulApp_RestFulAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,7 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9E9997F4EF0BCBE07714A96F /* Pods_RestFulApp.framework in Frameworks */,
+				207DF0D72CACCA8500C834FE /* Pods_RestFulApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +145,7 @@
 				204860BF2C8FD560006BC8A6 /* LaunchScreen.storyboard */,
 				204860C22C8FD560006BC8A6 /* Info.plist */,
 				204860E42C8FD63F006BC8A6 /* GoogleService-Info.plist */,
+				207DF0DE2CACDB4800C834FE /* Paging */,
 			);
 			path = RestFulApp;
 			sourceTree = "<group>";
@@ -147,6 +165,14 @@
 				204860D72C8FD560006BC8A6 /* RestFulAppUITestsLaunchTests.swift */,
 			);
 			path = RestFulAppUITests;
+			sourceTree = "<group>";
+		};
+		207DF0DE2CACDB4800C834FE /* Paging */ = {
+			isa = PBXGroup;
+			children = (
+				207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */,
+			);
+			path = Paging;
 			sourceTree = "<group>";
 		};
 		741423F23238366240457A21 /* Frameworks */ = {
@@ -185,6 +211,8 @@
 				204860AD2C8FD55E006BC8A6 /* Sources */,
 				204860AE2C8FD55E006BC8A6 /* Frameworks */,
 				204860AF2C8FD55E006BC8A6 /* Resources */,
+				207DF0D92CACCA8600C834FE /* Embed Frameworks */,
+				B2495655D2935A0F5B7E9866 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -223,6 +251,7 @@
 				204860CD2C8FD560006BC8A6 /* Sources */,
 				204860CE2C8FD560006BC8A6 /* Frameworks */,
 				204860CF2C8FD560006BC8A6 /* Resources */,
+				2BFE6C5D22269ABAC5C9B0E4 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -331,6 +360,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		2BFE6C5D22269ABAC5C9B0E4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RestFulApp-RestFulAppUITests/Pods-RestFulApp-RestFulAppUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RestFulApp-RestFulAppUITests/Pods-RestFulApp-RestFulAppUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RestFulApp-RestFulAppUITests/Pods-RestFulApp-RestFulAppUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		426E83ABB2D5A6ECC95F7DAE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -392,6 +438,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		B2495655D2935A0F5B7E9866 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RestFulApp/Pods-RestFulApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RestFulApp/Pods-RestFulApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RestFulApp/Pods-RestFulApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -401,6 +464,7 @@
 			files = (
 				204860B92C8FD55E006BC8A6 /* ViewController.swift in Sources */,
 				204860B52C8FD55E006BC8A6 /* AppDelegate.swift in Sources */,
+				207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */,
 				204860B72C8FD55E006BC8A6 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -494,7 +558,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -557,7 +621,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -585,6 +649,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L598E88287;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RestFulApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -615,6 +680,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L598E88287;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RestFulApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

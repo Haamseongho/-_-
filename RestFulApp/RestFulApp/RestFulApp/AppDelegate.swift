@@ -10,10 +10,17 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // 윈도우 생성
+        window = UIWindow(frame: UIScreen.main.bounds)
+        
+        // TabBarController 생성
+        let tabBarController = CustomTabBarController()
+        // rootViewController로 설정
+        window?.rootViewController = tabBarController
+        window?.makeKeyAndVisible()
         return true
     }
 
