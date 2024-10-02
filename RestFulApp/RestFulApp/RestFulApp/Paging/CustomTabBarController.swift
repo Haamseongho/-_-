@@ -28,6 +28,10 @@ class FirstTabController: UIViewController, UICollectionViewDelegate, UICollecti
         view.addSubview(borderView)
         
         
+        // addImage 이벤트 추가
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(addImageTapped))
+        addImage.isUserInteractionEnabled = true
+        addImage.addGestureRecognizer(tapGesture)
         // CollectionView
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: view.frame.size.width - 20, height: 100)
@@ -60,6 +64,10 @@ class FirstTabController: UIViewController, UICollectionViewDelegate, UICollecti
                 collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
             ]
         )
+    }
+    // New Collection 선택한 상황
+    @objc private func addImageTapped(){
+        print("addImage Tapped")
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -143,7 +151,9 @@ struct Collection {
 
 class ParentCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     private var subCollectionView: UICollectionView!
-    private var subItems: [UIImage] = [UIImage(systemName: "house"), UIImage(systemName: "house.fill")]
+    private var subItems: [Collection] = [Collection(title: "title1", requestCount: 1, imgMenu: UIImageView(image: UIImage(systemName: "plus"))),
+                                          Collection(title: "title2", requestCount: 2, imgMenu: UIImageView(image: UIImage(systemName: "plus"))),
+                                          Collection(title: "title3", requestCount: 3, imgMenu: UIImageView(image: UIImage(systemName: "plus")))]
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -193,11 +203,17 @@ class ParentCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, 
         
         // 서브 셀에 텍스트 레이블 추가
         let label = UILabel(frame: cell.bounds)
-        label.text = subItems[indexPath.item]
+        label.text = subItems[indexPath.item].title
+        let requestCount = UILabel(frame: cell.bounds)
+        requestCount.text = String(subItems[indexPath.item].requestCount)
+        var subImage = UIImageView()
+        subImage = subItems[indexPath.item].imgMenu
+        
         label.textAlignment = .center
         label.textColor = .white
         cell.contentView.addSubview(label)
-        
+        cell.contentView.addSubview(requestCount)
+        cell.contentView.addSubview(subImage)
         return cell
     }
     
