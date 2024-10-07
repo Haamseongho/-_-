@@ -34,7 +34,7 @@ class FirstTabController: UIViewController, UICollectionViewDelegate, UICollecti
         addImage.addGestureRecognizer(tapGesture)
         // CollectionView
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: view.frame.size.width - 20, height: 100)
+        // layout.itemSize = CGSize(width: view.frame.size.width - 80, height: 200)
         layout.minimumLineSpacing = 10
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -46,6 +46,7 @@ class FirstTabController: UIViewController, UICollectionViewDelegate, UICollecti
         collectionView.register(ParentCollectionViewCell.self, forCellWithReuseIdentifier: "ParentCell")
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate(
@@ -120,8 +121,6 @@ class ThirdTabController: UIViewController {
 
 class CustomTabBarController: UITabBarController, UITabBarControllerDelegate {
     
-    var pageViewController: UIPageViewController!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -168,7 +167,7 @@ class ParentCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, 
     
     private func setupSubCollectionView() {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 60, height: 60) // 서브 셀 크기 설정
+       // layout.itemSize = CGSize(width: 60, height: 60) // 서브 셀 크기 설정
         layout.minimumLineSpacing = 10
         
         subCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -220,6 +219,6 @@ class ParentCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, 
     // MARK: - UICollectionViewDelegateFlowLayout
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 60, height: 60) // 서브 셀 크기 설정
+        return CGSize(width: 120, height: 60) // 서브 셀 크기 설정
     }
 }

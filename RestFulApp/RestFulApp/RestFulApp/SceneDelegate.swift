@@ -19,6 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         // TabBarController 생성
+
         let tabBarController = CustomTabBarController()
         // PageViewController 생성 및 탭바 아이템 설정
         // rootViewController로 설정
