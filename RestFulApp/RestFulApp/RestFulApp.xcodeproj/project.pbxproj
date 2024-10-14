@@ -20,6 +20,10 @@
 		207DF0D72CACCA8500C834FE /* Pods_RestFulApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */; };
 		207DF0D82CACCA8500C834FE /* Pods_RestFulApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */; };
+		2093F25F2CB76E6000BA1E71 /* CollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */; };
+		2093F2612CB76F3D00BA1E71 /* MyCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */; };
+		2093F2642CB787E200BA1E71 /* CollectionTabConroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2632CB787E200BA1E71 /* CollectionTabConroller.swift */; };
+		2093F2662CB78D9200BA1E71 /* RequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2652CB78D9200BA1E71 /* RequestModel.swift */; };
 		46B65A1C4ECAC9BD37941924 /* Pods_RestFulApp_RestFulAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 548C389C8E4B112F01E500C9 /* Pods_RestFulApp_RestFulAppTests.framework */; };
 		FC53D1218FB64F0C3E3C43A3 /* Pods_RestFulApp_RestFulAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8D1AD0A7F81B28BC71DF849 /* Pods_RestFulApp_RestFulAppUITests.framework */; };
 /* End PBXBuildFile section */
@@ -71,6 +75,10 @@
 		204860D72C8FD560006BC8A6 /* RestFulAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestFulAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		204860E42C8FD63F006BC8A6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarController.swift; sourceTree = "<group>"; };
+		2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionModel.swift; sourceTree = "<group>"; };
+		2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCollectionViewCell.swift; sourceTree = "<group>"; };
+		2093F2632CB787E200BA1E71 /* CollectionTabConroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionTabConroller.swift; sourceTree = "<group>"; };
+		2093F2652CB78D9200BA1E71 /* RequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModel.swift; sourceTree = "<group>"; };
 		32DDB468D01CE95D83987742 /* Pods-RestFulApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RestFulApp.release.xcconfig"; path = "Target Support Files/Pods-RestFulApp/Pods-RestFulApp.release.xcconfig"; sourceTree = "<group>"; };
 		36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RestFulApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		548C389C8E4B112F01E500C9 /* Pods_RestFulApp_RestFulAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RestFulApp_RestFulAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -137,6 +145,7 @@
 		204860B32C8FD55E006BC8A6 /* RestFulApp */ = {
 			isa = PBXGroup;
 			children = (
+				2093F25D2CB76E2E00BA1E71 /* Collection */,
 				204860B42C8FD55E006BC8A6 /* AppDelegate.swift */,
 				204860B62C8FD55E006BC8A6 /* SceneDelegate.swift */,
 				204860B82C8FD55E006BC8A6 /* ViewController.swift */,
@@ -173,6 +182,17 @@
 				207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */,
 			);
 			path = Paging;
+			sourceTree = "<group>";
+		};
+		2093F25D2CB76E2E00BA1E71 /* Collection */ = {
+			isa = PBXGroup;
+			children = (
+				2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */,
+				2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */,
+				2093F2632CB787E200BA1E71 /* CollectionTabConroller.swift */,
+				2093F2652CB78D9200BA1E71 /* RequestModel.swift */,
+			);
+			path = Collection;
 			sourceTree = "<group>";
 		};
 		741423F23238366240457A21 /* Frameworks */ = {
@@ -464,8 +484,12 @@
 			files = (
 				204860B92C8FD55E006BC8A6 /* ViewController.swift in Sources */,
 				204860B52C8FD55E006BC8A6 /* AppDelegate.swift in Sources */,
+				2093F2612CB76F3D00BA1E71 /* MyCollectionViewCell.swift in Sources */,
 				207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */,
+				2093F2642CB787E200BA1E71 /* CollectionTabConroller.swift in Sources */,
 				204860B72C8FD55E006BC8A6 /* SceneDelegate.swift in Sources */,
+				2093F25F2CB76E6000BA1E71 /* CollectionModel.swift in Sources */,
+				2093F2662CB78D9200BA1E71 /* RequestModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
