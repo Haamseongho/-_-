@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import RxSwift
 class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     var subCollectionView: UICollectionView!
     private var subItems: [RequestModel] = []
@@ -15,10 +14,25 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
     override init(frame: CGRect){
         super.init(frame: frame)
         setupSubCollectionView()
+        // 임의의 데이터 추가
+        self.subItems = [
+            RequestModel(type: "Type1", title: "Title1", optionImage: UIImageView(image: UIImage(systemName: "star"))),
+            RequestModel(type: "Type2", title: "Title2", optionImage: UIImageView(image: UIImage(systemName: "star.fill")))
+        ]
+        print("SubItems initialized with: \(subItems)")
+        subCollectionView.isHidden = false
+        subCollectionView.reloadData()  // 데이터 리로드
     }
     required init?(coder: NSCoder) {
         super.init(coder:coder)
         setupSubCollectionView()
+        self.subItems = [
+            RequestModel(type: "Type1", title: "Title1", optionImage: UIImageView(image: UIImage(systemName: "star"))),
+            RequestModel(type: "Type2", title: "Title2", optionImage: UIImageView(image: UIImage(systemName: "star.fill")))
+        ]
+        print("SubItems initialized with: \(subItems)")
+        subCollectionView.isHidden = false
+        subCollectionView.reloadData()  // 데이터 리로드
     }
     
     func setupSubCollectionView(){
@@ -31,9 +45,11 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
         subCollectionView.dataSource = self
         subCollectionView.backgroundColor = .lightGray
         
-        
+        subCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SubCell")
         subCollectionView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(subCollectionView)
+        
+        
         NSLayoutConstraint.activate([
             subCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
             subCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
@@ -41,25 +57,38 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
             subCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
         
-        subCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SubCell")
-        
+        subCollectionView.isHidden = true
+        contentView.layoutIfNeeded()
     }
     
-    func setRequestItems(_ items: [RequestModel]) {
+    func setRequestItems(_ items: [RequestModel], isExpanded: Bool) {
         self.subItems = items
-        print("Received items: \(subItems)") // 데이터가 잘 넘어오는지 확인
-        subCollectionView.reloadData()
+        print("Received items__Lock: \(self.subItems)") // 데이터가 잘 넘어오는지 확인
+        // isExpanded 상태에 따라 자식 CollectionView 표시/숨김 설정
+        subCollectionView.isHidden = !isExpanded
+
+        subCollectionView.reloadData() // 데이터 새로고침
+        print("Received items__Lock22: \(subItems)") // 데이터가 잘 넘어오는지 확인
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("subItemsCount: \(self.subItems.count)")
         return subItems.count
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.bounds.width, height: 60) // 서브 셀 크기 설정
+        return CGSize(width: collectionView.bounds.width - 20, height: 60) // 서브 셀 크기 설정
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SubCell", for: indexPath)
         cell.backgroundColor = .lightGray
+        // 기존의 subviews를 모두 제거하고 새롭게 추가 (중복 방지)
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        let requestItem = subItems[indexPath.item]
+           
+        // 로그 추가
+        print("Configuring cell for item at index \(indexPath.item): \(requestItem)")
+           
+        
         let type = UILabel(frame: cell.contentView.bounds)
         type.text = subItems[indexPath.item].type
         type.textColor = UIColor.black

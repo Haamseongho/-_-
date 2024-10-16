@@ -10,24 +10,29 @@ import UIKit
 import SwiftUI
 import RxSwift
 
-class CollectionTabConroller: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class CollectionTabController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     private var collectionView: UICollectionView!
+    private var flag = false
+    private var dataPassDelegate: DataPassingDelegate?
+    
+    
     private var items: [CollectionModel] = [
         CollectionModel(openImage: UIImageView(image: UIImage(systemName: "arrow.up")), title: "Collection1", requestCount: 1, optionImage: UIImageView(image: UIImage(systemName: "ellipsis")), borderView: UIView(), subItems:  [
             RequestModel(type: "GET", title: "title1", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
             RequestModel(type: "GET", title: "title1", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
             RequestModel(type: "GET", title: "title1", optionImage: UIImageView(image: UIImage(systemName: "ellipsis")))
-        ]
-                       ),
+        ], isExpanded: false),
         CollectionModel(openImage: UIImageView(image: UIImage(systemName: "arrow.up")), title: "Collection2", requestCount: 2, optionImage: UIImageView(image: UIImage(systemName: "ellipsis")), borderView: UIView(), subItems: [
             RequestModel(type: "POST", title: "title2", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
             RequestModel(type: "POST", title: "title3", optionImage: UIImageView(image: UIImage(systemName: "ellipsis")))
-        ]),
+        ], isExpanded: false),
         CollectionModel(openImage: UIImageView(image: UIImage(systemName: "arrow.up")), title: "Collection3", requestCount: 3, optionImage: UIImageView(image: UIImage(systemName: "ellipsis")), borderView: UIView(), subItems: [
             RequestModel(type: "DELETE", title: "title4", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
             RequestModel(type: "PUT", title: "title5", optionImage: UIImageView(image: UIImage(systemName: "ellipsis")))
-        ])
+        ], isExpanded: false)
     ]
+    
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return items.count
     }
@@ -35,21 +40,35 @@ class CollectionTabConroller: UIViewController, UICollectionViewDelegate, UIColl
     @objc func handleOpenImage(_ sender: UITapGestureRecognizer) {
         guard let tappedImageView = sender.view as? UIImageView else { return }
         guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
-        if tappedImageView.image == UIImage(systemName: "arrow.up") {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let requestItems = items[indexPath.item].subItems
+        // 해당 셀의 상태(isExpanded)를 전환
+        items[indexPath.item].isExpanded.toggle()
+        if items[indexPath.item].isExpanded {
             tappedImageView.image = UIImage(systemName: "arrow.down")
+            flag = true
         } else {
             tappedImageView.image = UIImage(systemName: "arrow.up")
+            flag = false
         }
         
-        let indexPath = collectionView.indexPath(for: cell)!
-        let requestItems = items[indexPath.item].subItems
-        print("Received items222: \(requestItems)") // 데이터가 잘 넘어오는지 확인
-    
-        cell.setRequestItems(requestItems)
+        // 해당 셀만 다시 로드
+        collectionView.reloadItems(at: [indexPath])
+        
+        // 레이아웃을 강제로 다시 계산
+        collectionView.collectionViewLayout.invalidateLayout()
+        
+        cell.setRequestItems(requestItems, isExpanded: items[indexPath.item].isExpanded)
+        
+        // 우선 예시로 여기서 관리해봄
+        let type: String? = items[indexPath.item].subItems.first?.type
+        let title: String? = items[indexPath.item].subItems.first?.title
+        
+        
+        tabBarController?.selectedIndex = 1
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ParentCell", for: indexPath) as! MyCollectionViewCell
-        
         
         
         cell.backgroundColor = .white
@@ -106,7 +125,8 @@ class CollectionTabConroller: UIViewController, UICollectionViewDelegate, UIColl
             
             // Option image constraints
             optionImage.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -10), // 오른쪽에 맞추기
-            optionImage.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor), // 세로 중앙 맞춤
+            optionImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
+           // optionImage.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor), // 세로 중앙 맞춤
             optionImage.widthAnchor.constraint(equalToConstant: 20),
             optionImage.heightAnchor.constraint(equalToConstant: 20),
             
@@ -119,15 +139,25 @@ class CollectionTabConroller: UIViewController, UICollectionViewDelegate, UIColl
         
         // 자식뷰 더하기
         let requestItems = items[indexPath.item].subItems // subItems는 실제 데이터 배열이어야 함
-        cell.setRequestItems(requestItems)
+        let isExpanded = items[indexPath.item].isExpanded
+ 
+        cell.setRequestItems(requestItems, isExpanded: isExpanded)
   
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let requestItemsCount = items[indexPath.item].subItems.count
-        let height = CGFloat(60 + requestItemsCount * 60) // Parent content 높이 + 자식 content 높이
-        return CGSize(width: collectionView.bounds.width - 20, height: height)
+        let baseHeight: CGFloat = 60 // Parent content 높이
+
+        // flag가 true일 경우, 자식 아이템의 높이를 포함한 크기
+        if items[indexPath.item].isExpanded {
+            let additionalHeight = CGFloat(requestItemsCount * 60) // 각 자식 아이템당 60의 높이
+            return CGSize(width: collectionView.bounds.width - 20, height: baseHeight + additionalHeight)
+        } else {
+            // flag가 false일 경우, 기본 높이만 반환
+            return CGSize(width: collectionView.bounds.width - 20, height: baseHeight)
+        }
     }
 
     override func viewDidLoad() {
@@ -191,12 +221,20 @@ class CollectionTabConroller: UIViewController, UICollectionViewDelegate, UIColl
         )
         
         
-        
     }
     
     // New Collection 선택한 상황
     @objc private func addImageTapped(){
         print("addImage Tapped")
     }
+    
+    func passData(apiSendObject: ApiModel){
+        dataPassDelegate?.passData(data: apiSendObject)
+    }
+    
+}
+
+protocol DataPassingDelegate {
+    func passData(data: ApiModel)
 }
 

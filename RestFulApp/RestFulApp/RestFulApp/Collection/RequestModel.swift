@@ -13,3 +13,9 @@ struct RequestModel {
     let title: String
     let optionImage: UIImageView
 }
+
+struct ApiModel {
+    let type: String
+    let title: String
+    let url: String? = ""
+}

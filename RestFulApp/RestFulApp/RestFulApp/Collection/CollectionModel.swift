@@ -16,4 +16,5 @@ struct CollectionModel {
     let borderView: UIView
     
     var subItems: [RequestModel]
+    var isExpanded: Bool // 추가: 각 셀의 열림/닫힘 상태를 추적
 }
