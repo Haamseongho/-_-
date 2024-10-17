@@ -6,13 +6,14 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
     var pickerView = UIPickerView()
     var methodTypeData = ["GET", "POST", "PUT", "DELETE"]
     var tableView = UITableView()
-    var data: [(key: String, value: String)] = [("key1", "value1"), ("key2", "value2"), ("key3", "value3")] // Key-Value pairs
+    var data: [(key: String, value: String, checked: Bool)] = [("", "", false)] // Key-Value pairs
     var tabStackView = UIStackView()
+    var receivedData: ApiModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
+    //    setupScrollView()
         setupPickerView()
         setupURLInput()
         setupCustomTabs()
@@ -26,9 +27,40 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(pickerView)
         
+        
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        let borderView = UIView()
+        borderView.backgroundColor = .black
+        borderView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(titleLabel)
+        view.addSubview(borderView)
+        if receivedData?.title != nil && receivedData?.type != nil{
+            let title = receivedData?.title
+            titleLabel.text = title
+            titleLabel.textColor = .black
+            titleLabel.font = UIFont.systemFont(ofSize: 16)
+            let type = receivedData?.type ?? "GET"
+            if let index = methodTypeData.firstIndex(of: type) {
+                pickerView.selectRow(index, inComponent: 0, animated: true)
+            }
+        } 
+        else {
+            titleLabel.text = "test"
+            titleLabel.textColor = .black
+            titleLabel.font = UIFont.systemFont(ofSize: 24)
+        }
+        
         NSLayoutConstraint.activate([
-            pickerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            pickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
+            titleLabel.heightAnchor.constraint(equalToConstant: 50),
+            borderView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            borderView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            borderView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+            borderView.heightAnchor.constraint(equalToConstant: 3),
+            pickerView.topAnchor.constraint(equalTo: borderView.bottomAnchor, constant: 20),
+            pickerView.leadingAnchor.constraint(equalTo: borderView.leadingAnchor, constant: 10),
             pickerView.widthAnchor.constraint(equalToConstant: 130),
             pickerView.heightAnchor.constraint(equalToConstant: 100)
         ])
@@ -89,12 +121,26 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
     
     @objc func tabButtonTapped(_ sender: UIButton) {
         print("Tab selected: \(sender.currentTitle ?? "")")
+        if sender.currentTitle == "Body" {
+            requestBodyInfo()
+        } else {
+            requestTableInfo()
+        }
         // Handle tab switching logic here
+    }
+    
+    func requestBodyInfo() {
+        tableView.isHidden = true
+    }
+    
+    func requestTableInfo(){
+        tableView.isHidden = false
     }
     
     func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.register(TableViewController.self, forCellReuseIdentifier: "KeyValueCell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
@@ -153,16 +199,33 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
         return methodTypeData[row]
     }
 
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        print("selected : \(methodTypeData[row])")
+    }
     // MARK: UITableViewDataSource & Delegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "KeyValueCell", for: indexPath) as? TableViewController else { return UITableViewCell() }
         let item = data[indexPath.row]
-        cell.textLabel?.text = item.key
-        cell.detailTextLabel?.text = item.value
+        cell.keyTextField.text = item.key
+        cell.valueTextField.text = item.value
+        cell.checkBox.isSelected = item.checked
+        
+        cell.onTextChange = { [weak self] key, value in
+            self?.data[indexPath.row] = (key, value, false)
+        }
+        cell.checkBoxTapped = { [weak self] in
+            self?.data[indexPath.row].checked.toggle()
+            if self?.data[indexPath.row].checked == true {
+                self?.data.append((key: "", value: "", checked: false))
+            }
+            self?.tableView.reloadData()
+        }
         return cell
     }
+ 
+
 }

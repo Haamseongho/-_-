@@ -60,12 +60,24 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         
         cell.setRequestItems(requestItems, isExpanded: items[indexPath.item].isExpanded)
         
+       
+    }
+    
+    @objc func moveToTabApi(_ sender: UITapGestureRecognizer){
+        guard let tappedImageView = sender.view as? UIImageView else { return }
+        guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
         // 우선 예시로 여기서 관리해봄
         let type: String? = items[indexPath.item].subItems.first?.type
         let title: String? = items[indexPath.item].subItems.first?.title
         
-        
-        tabBarController?.selectedIndex = 1
+      
+        if let tabBarController = tabBarController,
+           let apiTab = tabBarController.viewControllers?[1] as? ApiTabController {
+            apiTab.receivedData = ApiModel(type: type ?? "", title: title ?? "")
+            
+            tabBarController.selectedIndex = 1
+        }
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ParentCell", for: indexPath) as! MyCollectionViewCell
