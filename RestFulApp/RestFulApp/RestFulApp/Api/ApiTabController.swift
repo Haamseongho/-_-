@@ -1,34 +1,59 @@
 import UIKit
 import Foundation
+import DropDown
+import Alamofire
 
-class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate, UITableViewDataSource {
-
-    var pickerView = UIPickerView()
+class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+   // var pickerView = UIPickerView()
     var methodTypeData = ["GET", "POST", "PUT", "DELETE"]
     var tableView = UITableView()
     var data: [(key: String, value: String, checked: Bool)] = [("", "", false)] // Key-Value pairs
     var tabStackView = UIStackView()
     var receivedData: ApiModel?
+    let dropDown = DropDown() // DropDown 인스턴스 생성
+    let button = UIButton(type: .system)
+    var methodLabel = UILabel()
+    let titleLabel = UILabel()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-    //    setupScrollView()
-        setupPickerView()
+        setupDropDown()
         setupURLInput()
         setupCustomTabs()
         setupTableView()
         setupResponseView()
     }
-
-    func setupPickerView() {
-        pickerView.delegate = self
-        pickerView.dataSource = self
-        pickerView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(pickerView)
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if receivedData?.title != nil && receivedData?.type != nil {
+            titleLabel.text = receivedData?.title
+            titleLabel.textColor = .black
+            titleLabel.font = UIFont.systemFont(ofSize: 16)
+            let type = receivedData?.type ?? "GET"
+            if let index = methodTypeData.firstIndex(of: type) {
+                dropDown.selectRow(index)
+                methodLabel.text = type
+            }
+        }
+    }
+    
+    func setupDropDown(){
+       
+        methodLabel.text = "GET"
+        methodLabel.textAlignment = .center
+        methodLabel.backgroundColor = .lightGray
+        methodLabel.textColor = .black
+        methodLabel.layer.cornerRadius = 10
+        methodLabel.layer.borderWidth = 1
+        methodLabel.clipsToBounds = true
+        methodLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(methodLabel)
         
         
-        let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         let borderView = UIView()
         borderView.backgroundColor = .black
@@ -42,15 +67,37 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
             titleLabel.font = UIFont.systemFont(ofSize: 16)
             let type = receivedData?.type ?? "GET"
             if let index = methodTypeData.firstIndex(of: type) {
-                pickerView.selectRow(index, inComponent: 0, animated: true)
+                dropDown.selectRow(index)
+                methodLabel.text = type
             }
-        } 
+        }
         else {
             titleLabel.text = "test"
             titleLabel.textColor = .black
             titleLabel.font = UIFont.systemFont(ofSize: 24)
         }
         
+        // DropDown 설정
+        dropDown.anchorView = borderView // 드롭다운을 버튼 아래에 앵커링
+        dropDown.dataSource = methodTypeData // 드롭다운 항목
+        dropDown.bottomOffset = CGPoint(x: 0, y: borderView.bounds.height) // View를 가리지 않고 View 아래에 Item 팝업이 붙도록 설정
+        
+        
+        
+     //   dropDown.translatesAutoresizingMaskIntoConstraints = false
+     //   view.addSubview(dropDown)
+        
+
+        let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(showDropDown))
+        methodLabel.isUserInteractionEnabled = true
+        methodLabel.addGestureRecognizer(tapGesture2)
+        
+        
+        // 드롭다운 항목 선택 시 처리
+        dropDown.selectionAction = { [weak self] (index: Int, item: String) in
+            print("Selected item: \(item) at index: \(index)")
+            self?.methodLabel.text = item
+        }
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
@@ -59,13 +106,17 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
             borderView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
             borderView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
             borderView.heightAnchor.constraint(equalToConstant: 3),
-            pickerView.topAnchor.constraint(equalTo: borderView.bottomAnchor, constant: 20),
-            pickerView.leadingAnchor.constraint(equalTo: borderView.leadingAnchor, constant: 10),
-            pickerView.widthAnchor.constraint(equalToConstant: 130),
-            pickerView.heightAnchor.constraint(equalToConstant: 100)
+            methodLabel.topAnchor.constraint(equalTo: borderView.bottomAnchor, constant: 20),
+            methodLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
+            methodLabel.widthAnchor.constraint(equalToConstant: 130), // 고정된 너비 추가
+            methodLabel.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-
+    
+    @objc func showDropDown() {
+        dropDown.show() // 드롭다운 표시
+    }
+    
     func setupURLInput() {
         let textField = UITextField()
         textField.placeholder = "Enter URL"
@@ -79,18 +130,28 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
         view.addSubview(sendButton)
         
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: pickerView.trailingAnchor, constant: 10),
+            textField.leadingAnchor.constraint(equalTo: methodLabel.trailingAnchor, constant: 10),
             textField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -10),
-            textField.topAnchor.constraint(equalTo: pickerView.topAnchor),
+            textField.topAnchor.constraint(equalTo: methodLabel.topAnchor, constant: 0),
+            textField.bottomAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 0),
             textField.heightAnchor.constraint(equalToConstant: 40),
             
             sendButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            sendButton.topAnchor.constraint(equalTo: textField.topAnchor),
+            sendButton.topAnchor.constraint(equalTo: methodLabel.topAnchor, constant: 0),
+            sendButton.bottomAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 0),
             sendButton.widthAnchor.constraint(equalToConstant: 50),
             sendButton.heightAnchor.constraint(equalToConstant: 40)
         ])
+        
+        let sendButtonTapped = UITapGestureRecognizer(target: self, action: #selector(sendButtonClicked))
+        sendButton.isUserInteractionEnabled = true
+        sendButton.addGestureRecognizer(sendButtonTapped)
     }
-
+    
+    @objc func sendButtonClicked() {
+        
+    }
+    
     func setupCustomTabs() {
         let paramsButton = createButton(title: "Params")
         let headersButton = createButton(title: "Headers")
@@ -105,7 +166,7 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
         view.addSubview(tabStackView)
         
         NSLayoutConstraint.activate([
-            tabStackView.topAnchor.constraint(equalTo: pickerView.bottomAnchor, constant: 10),
+            tabStackView.topAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 10),
             tabStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             tabStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             tabStackView.heightAnchor.constraint(equalToConstant: 40)
@@ -148,7 +209,7 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
             tableView.topAnchor.constraint(equalTo: tabStackView.bottomAnchor, constant: 10),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            tableView.heightAnchor.constraint(equalToConstant: 200)
+            tableView.heightAnchor.constraint(equalToConstant: 150)
         ])
         
         let addButton = UIButton(type: .system)
@@ -185,23 +246,7 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
             responseTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
     }
-
-    // MARK: UIPickerViewDataSource & Delegate
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return methodTypeData.count
-    }
-
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return methodTypeData[row]
-    }
-
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print("selected : \(methodTypeData[row])")
-    }
+    
     // MARK: UITableViewDataSource & Delegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
@@ -226,6 +271,6 @@ class ApiTabController: UIViewController, UIPickerViewDelegate, UIPickerViewData
         }
         return cell
     }
- 
-
+    
+    
 }

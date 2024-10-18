@@ -1,5 +1,6 @@
 PODS:
-  - Alamofire (5.9.1)
+  - Alamofire (5.10.0)
+  - DropDown (2.3.13)
   - Firebase/Analytics (11.3.0):
     - Firebase/Core
   - Firebase/Core (11.3.0):
@@ -93,13 +94,16 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire
+  - DropDown
   - Firebase/Analytics
   - Firebase/Core
+  - GoogleAppMeasurement
   - RxSwift
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - DropDown
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -112,7 +116,8 @@ SPEC REPOS:
     - RxSwift
 
 SPEC CHECKSUMS:
-  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
+  Alamofire: cd0b98508df05796dd2ff278f3bb055a631b5390
+  DropDown: 8a2116376c1981888557f72ec2ffc9a5e0e456ec
   Firebase: 5c575140761e22324806f401e38c483d58db2dec
   FirebaseAnalytics: ce1593872635a5ebd715d0d3937fab195991ecc9
   FirebaseCore: 8542de610f35f86196ba26cdb2544565a5157c8e
@@ -124,6 +129,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RxSwift: 4e28be97cbcfeee614af26d83415febbf2bf6f45
 
-PODFILE CHECKSUM: f79b1912ef23b911c760f6f5fe975c9cd42503bf
+PODFILE CHECKSUM: 9f2bd4207c11255da62a459ce51990af103aec9f
 
 COCOAPODS: 1.15.2
