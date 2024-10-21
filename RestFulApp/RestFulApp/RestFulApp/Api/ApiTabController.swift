@@ -2,10 +2,11 @@ import UIKit
 import Foundation
 import DropDown
 import Alamofire
+import Combine
 
 class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-   // var pickerView = UIPickerView()
+    // var pickerView = UIPickerView()
     var methodTypeData = ["GET", "POST", "PUT", "DELETE"]
     var tableView = UITableView()
     var data: [(key: String, value: String, checked: Bool)] = [("", "", false)] // Key-Value pairs
@@ -15,6 +16,8 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     let button = UIButton(type: .system)
     var methodLabel = UILabel()
     let titleLabel = UILabel()
+    let textField = UITextField()
+    var tabIndex = 0 // 0, 1 = Param, Header, 2 = Body
     
     
     override func viewDidLoad() {
@@ -42,7 +45,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     }
     
     func setupDropDown(){
-       
+        
         methodLabel.text = "GET"
         methodLabel.textAlignment = .center
         methodLabel.backgroundColor = .lightGray
@@ -84,10 +87,10 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         
         
         
-     //   dropDown.translatesAutoresizingMaskIntoConstraints = false
-     //   view.addSubview(dropDown)
+        //   dropDown.translatesAutoresizingMaskIntoConstraints = false
+        //   view.addSubview(dropDown)
         
-
+        
         let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(showDropDown))
         methodLabel.isUserInteractionEnabled = true
         methodLabel.addGestureRecognizer(tapGesture2)
@@ -118,7 +121,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     }
     
     func setupURLInput() {
-        let textField = UITextField()
+        
         textField.placeholder = "Enter URL"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -149,8 +152,151 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     }
     
     @objc func sendButtonClicked() {
+        print("sendButtonClicked")
+        for(key, value, checked) in data {
+            print("Key : \(key) Value : \(value) Checked : \(checked)")
+        }
+        
+        print("textField: \(textField.text) tabIndex : \(tabIndex)")
+        // Body
+        if tabIndex == 2 {
+            // textField 내용을 넣어서 반영할 것
+            apiCallByBody()
+        }
+        // Headers
+        else if tabIndex == 1{
+            apiCallByHeaders()
+        }
+        // Params
+        else {
+            apiCallByParams()
+        }
+    }
+    
+    // params
+    func apiCallByParams(){
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer your_token_here",
+            "Accept": "application/json"
+        ]
+        var params: [String: Any] = [:]
+        for(key, value, checked) in data {
+            if checked {
+                params[key] = value
+            }
+        }
+        
+        let apiUrl = textField.text ?? "" // 입력 Url
+        let methodType = self.methodLabel
+        if methodType.text == "GET" {
+            print("GET 테스트")
+            AF.request(apiUrl, method: HTTPMethod.get).response { response in
+                print("error : \(response)")
+                switch response.result {
+                case .success(let data):
+                    if let data = data {
+                        print("data : \(data)")
+                        if let mimeType = response.response?.mimeType {
+                            print("응답 MIME 타입: \(mimeType)")
+                        }
+                        if let isoString = String(data: data, encoding: .isoLatin1) {
+                            print("ISO-8859-1로 변환된 응답 데이터: \(isoString)")
+                        } else {
+                            print("ISO-8859-1 변환 실패")
+                        }
+                        if let jsonString = String(data: data, encoding: .utf8) {
+                            print("응답 데이터: \(jsonString)")
+                        } else {
+                            print("UTF-8 변환 실패")
+                        }
+                        do {
+                            // JSON 데이터로 변환 시도
+                            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                            print("JSON 응답 데이터: \(jsonObject)")
+                        } catch {
+                            print("JSON 파싱 실패: \(error)")
+                        }
+                    }
+                case .failure(let error):
+                    print("GET 요청 실패: \(error)")
+                }
+            }
+        } else if methodType.text == "POST" {
+            AF.request(apiUrl, method: HTTPMethod.post, parameters: params, encoding: JSONEncoding.default).response { response in
+                switch response.result {
+                case .success(let data):
+                    print("POST 요청 성공: \(data)")
+                case .failure(let error):
+                    print("POST 요청 실패: \(error)")
+                }
+            }
+        } else if methodType.text == "PUT" {
+            AF.request(apiUrl, method: HTTPMethod.put, parameters: params, encoding: JSONEncoding.default).response { response in
+                switch response.result {
+                case .success(let data):
+                    print("POST 요청 성공: \(data)")
+                case .failure(let error):
+                    print("POST 요청 실패: \(error)")
+                }
+            }
+        } else if methodType.text == "DELETE" {
+            AF.request(apiUrl, method: HTTPMethod.delete).response { response in
+                switch response.result {
+                case .success(let data):
+                    print("POST 요청 성공: \(data)")
+                case .failure(let error):
+                    print("POST 요청 실패: \(error)")
+                }
+            }
+        } else {
+            print("다른 메소드")
+        }
         
     }
+    
+    // headers
+    func apiCallByHeaders(){
+        var headers: HTTPHeaders = [
+            "Authorization": "Bearer your_token_here",
+            "Accept": "application/json"
+        ]
+        
+        for(key, value, checked) in data {
+            if checked {
+                headers[key] = value
+            }
+        }
+        var apiUrl = textField.text ?? "" // 입력 Url
+        var methodType = self.methodLabel
+        if methodType.text == "GET" {
+            AF.request(apiUrl, method: HTTPMethod.get, headers: headers).response { response in
+                switch response.result {
+                case .success(let data):
+                    print("GET 요청. 성공: \(data)")
+                case .failure(let error):
+                    print("GET 요청 실패: \(error)")
+                }
+            }
+        } else if methodType.text == "DELETE" {
+            AF.request(apiUrl, method: HTTPMethod.delete).response { response in
+                switch response.result {
+                case .success(let data):
+                    print("POST 요청 성공: \(data)")
+                case .failure(let error):
+                    print("POST 요청 실패: \(error)")
+                }
+            }
+        } else {
+            print("다른 메소드")
+        }
+        
+    }
+    
+    // body
+    func apiCallByBody(){
+        
+    }
+    
     
     func setupCustomTabs() {
         let paramsButton = createButton(title: "Params")
@@ -183,8 +329,15 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     @objc func tabButtonTapped(_ sender: UIButton) {
         print("Tab selected: \(sender.currentTitle ?? "")")
         if sender.currentTitle == "Body" {
+            tabIndex = 2
             requestBodyInfo()
-        } else {
+        }
+        else if sender.currentTitle == "Params" {
+            tabIndex = 0
+            requestTableInfo()
+        }
+        else {
+            tabIndex = 1
             requestTableInfo()
         }
         // Handle tab switching logic here
@@ -212,15 +365,6 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             tableView.heightAnchor.constraint(equalToConstant: 150)
         ])
         
-        let addButton = UIButton(type: .system)
-        addButton.setTitle("+", for: .normal)
-        addButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(addButton)
-        
-        NSLayoutConstraint.activate([
-            addButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
-            addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
     }
     
     func setupResponseView() {
@@ -260,17 +404,94 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         cell.checkBox.isSelected = item.checked
         
         cell.onTextChange = { [weak self] key, value in
-            self?.data[indexPath.row] = (key, value, false)
+            guard let self = self else { return }
+            // Update the data array with the new key and value
+            self.data[indexPath.row] = (key, value, self.data[indexPath.row].checked)
+            print("입력 Key: \(key) 입력 Value: \(value)")
         }
         cell.checkBoxTapped = { [weak self] in
-            self?.data[indexPath.row].checked.toggle()
-            if self?.data[indexPath.row].checked == true {
-                self?.data.append((key: "", value: "", checked: false))
+            guard let self = self else { return }
+            // Toggle the checked state
+            self.data[indexPath.row].checked.toggle()
+            
+            if self.data[indexPath.row].checked {
+                // Add a new row if checkbox is selected
+                self.data.append((key: "", value: "", checked: false))
+                let newIndexPath = IndexPath(row: self.data.count - 1, section: 0)
+                self.tableView.insertRows(at: [newIndexPath], with: .automatic)
+            } else {
+                // Remove the last row if checkbox is deselected
+                self.data.removeLast()
+                let lastIndexPath = IndexPath(row: self.data.count, section: 0)
+                self.tableView.deleteRows(at: [lastIndexPath], with: .automatic)
             }
-            self?.tableView.reloadData()
+            // Reload only the current cell to reflect the changes
+            self.tableView.reloadRows(at: [indexPath], with: .automatic)
         }
         return cell
     }
     
     
+}
+// protocol
+protocol Endpoint {
+    var baseURL: String { get }
+    var url: URL { get }
+    var path: String { get }
+    var headers: [String: String] { get }
+    var query: [String: String] { get }
+    var parameters: [String: Any] { get }
+    var method: HTTPMethod { get }
+    var encoding: URLEncoding { get }
+}
+
+extension Endpoint {
+    var url: URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = self.baseURL
+        components.path = self.path
+        components.queryItems = self.query.map{ URLQueryItem(name: $0, value: $1) }
+        return components.url!
+    }
+}
+
+enum APIError: Error {
+    case networkingError(error: Error)
+}
+
+class AlamofireNetworkingManager {
+    static let shared = AlamofireNetworkingManager()
+    private init() {}
+    
+    func run<T: Decodable>(_ endpoint: Endpoint, type: T.Type) -> AnyPublisher<T, APIError> {
+        let headersArray = endpoint.headers.map {
+            HTTPHeader(name: $0, value: $1)
+        }
+        
+        let headers = HTTPHeaders(headersArray)
+        
+        return AF.request(endpoint.url,
+                          method: endpoint.method,
+                          parameters: endpoint.parameters,
+                          encoding: endpoint.encoding,
+                          headers: headers)
+        .publishDecodable(type: T.self)
+        .value()
+        .mapError { error in
+            print(error.localizedDescription)
+            return APIError.networkingError(error: error)
+        }
+        .receive(on: DispatchQueue.main)
+        .eraseToAnyPublisher()
+    }
+    
+    func handleCompletion(completion: Subscribers.Completion<APIError>) {
+        switch completion {
+        case .finished:
+            break
+        case .failure(let error):
+            print(error.localizedDescription)
+        }
+    }
 }

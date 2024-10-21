@@ -13,7 +13,7 @@ struct DataKey: Hashable {
     let value: String
 }
 
-class TableViewController: UITableViewCell {
+class TableViewController: UITableViewCell, UITextFieldDelegate {
     
     let checkBox = UIButton(type: .system)
     let keyTextField = UITextField()
@@ -23,6 +23,9 @@ class TableViewController: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        keyTextField.delegate = self
+        valueTextField.delegate = self
+        
         keyTextField.borderStyle = .roundedRect
         keyTextField.placeholder = "Key"
         keyTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -64,9 +67,10 @@ class TableViewController: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func textFieldDidEndEditing(_ textField: UITextField){
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let key = keyTextField.text ?? ""
         let value = valueTextField.text ?? ""
         onTextChange?(key, value)
+        return true
     }
 }
