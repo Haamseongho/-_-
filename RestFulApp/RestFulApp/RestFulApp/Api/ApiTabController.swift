@@ -18,6 +18,9 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     let titleLabel = UILabel()
     let textField = UITextField()
     var tabIndex = 0 // 0, 1 = Param, Header, 2 = Body
+    let responseTextView = UITextView()
+    var buttonArray : [UIButton] = [] // Params, Headers, Body 버튼 넣어두는 배열
+    let reqBodyNote = UITextField()  // reqBody
     
     
     override func viewDidLoad() {
@@ -28,6 +31,13 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         setupCustomTabs()
         setupTableView()
         setupResponseView()
+        
+        let tapGestureByKeyDown = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGestureByKeyDown)
+    }
+    
+    @objc func dismissKeyboard(){
+        view.endEditing(true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -85,12 +95,6 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         dropDown.dataSource = methodTypeData // 드롭다운 항목
         dropDown.bottomOffset = CGPoint(x: 0, y: borderView.bounds.height) // View를 가리지 않고 View 아래에 Item 팝업이 붙도록 설정
         
-        
-        
-        //   dropDown.translatesAutoresizingMaskIntoConstraints = false
-        //   view.addSubview(dropDown)
-        
-        
         let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(showDropDown))
         methodLabel.isUserInteractionEnabled = true
         methodLabel.addGestureRecognizer(tapGesture2)
@@ -124,6 +128,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         
         textField.placeholder = "Enter URL"
         textField.borderStyle = .roundedRect
+        textField.backgroundColor = .lightGray
         textField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(textField)
         
@@ -157,7 +162,6 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             print("Key : \(key) Value : \(value) Checked : \(checked)")
         }
         
-        print("textField: \(textField.text) tabIndex : \(tabIndex)")
         // Body
         if tabIndex == 2 {
             // textField 내용을 넣어서 반영할 것
@@ -175,23 +179,19 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     
     // params
     func apiCallByParams(){
-        let headers: HTTPHeaders = [
-            "Authorization": "Bearer your_token_here",
-            "Accept": "application/json"
-        ]
         var params: [String: Any] = [:]
         for(key, value, checked) in data {
             if checked {
                 params[key] = value
             }
         }
-        
-        let apiUrl = textField.text ?? "" // 입력 Url
+        print("Params : \(params)")
+        // var apiUrl = textField.text ?? "" // 입력 Url
+        var apiUrl = "http://13.125.207.44:2721/api/get"
         let methodType = self.methodLabel
         if methodType.text == "GET" {
             print("GET 테스트")
-            AF.request(apiUrl, method: HTTPMethod.get).response { response in
-                print("error : \(response)")
+            AF.request(apiUrl, method: .get).response { response in
                 switch response.result {
                 case .success(let data):
                     if let data = data {
@@ -199,20 +199,19 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                         if let mimeType = response.response?.mimeType {
                             print("응답 MIME 타입: \(mimeType)")
                         }
-                        if let isoString = String(data: data, encoding: .isoLatin1) {
-                            print("ISO-8859-1로 변환된 응답 데이터: \(isoString)")
-                        } else {
-                            print("ISO-8859-1 변환 실패")
-                        }
-                        if let jsonString = String(data: data, encoding: .utf8) {
-                            print("응답 데이터: \(jsonString)")
-                        } else {
-                            print("UTF-8 변환 실패")
-                        }
+                        
                         do {
-                            // JSON 데이터로 변환 시도
-                            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                            print("JSON 응답 데이터: \(jsonObject)")
+                            if let jsonString = String(data: data, encoding: .utf8) {
+                                
+                                let returnString = self.formatJson(jsonString: jsonString)
+                                self.responseTextView.text = returnString
+                                if let jsonData = jsonString.data(using: .utf8) {
+                                    if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                                        print("JSON 응답 데이터: \(jsonObject)")
+                                        
+                                    }
+                                }
+                            }
                         } catch {
                             print("JSON 파싱 실패: \(error)")
                         }
@@ -225,7 +224,26 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             AF.request(apiUrl, method: HTTPMethod.post, parameters: params, encoding: JSONEncoding.default).response { response in
                 switch response.result {
                 case .success(let data):
-                    print("POST 요청 성공: \(data)")
+                    if let data = data {
+                        print("data : \(data)")
+                        if let mimeType = response.response?.mimeType {
+                            print("응답 MIME 타입: \(mimeType)")
+                        }
+                        
+                        do {
+                            if let jsonString = String(data: data, encoding: .utf8) {
+                                let returnString = self.formatJson(jsonString: jsonString)
+                                self.responseTextView.text = returnString
+                                if let jsonData = jsonString.data(using: .utf8) {
+                                    if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                                        print("JSON 응답 데이터: \(jsonObject)")
+                                    }
+                                }
+                            }
+                        } catch {
+                            print("JSON 파싱 실패: \(error)")
+                        }
+                    }
                 case .failure(let error):
                     print("POST 요청 실패: \(error)")
                 }
@@ -234,7 +252,26 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             AF.request(apiUrl, method: HTTPMethod.put, parameters: params, encoding: JSONEncoding.default).response { response in
                 switch response.result {
                 case .success(let data):
-                    print("POST 요청 성공: \(data)")
+                    if let data = data {
+                        print("data : \(data)")
+                        if let mimeType = response.response?.mimeType {
+                            print("응답 MIME 타입: \(mimeType)")
+                        }
+                        
+                        do {
+                            if let jsonString = String(data: data, encoding: .utf8) {
+                                let returnString = self.formatJson(jsonString: jsonString)
+                                self.responseTextView.text = returnString
+                                if let jsonData = jsonString.data(using: .utf8) {
+                                    if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                                        print("JSON 응답 데이터: \(jsonObject)")
+                                    }
+                                }
+                            }
+                        } catch {
+                            print("JSON 파싱 실패: \(error)")
+                        }
+                    }
                 case .failure(let error):
                     print("POST 요청 실패: \(error)")
                 }
@@ -243,7 +280,26 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             AF.request(apiUrl, method: HTTPMethod.delete).response { response in
                 switch response.result {
                 case .success(let data):
-                    print("POST 요청 성공: \(data)")
+                    if let data = data {
+                        print("data : \(data)")
+                        if let mimeType = response.response?.mimeType {
+                            print("응답 MIME 타입: \(mimeType)")
+                        }
+                        
+                        do {
+                            if let jsonString = String(data: data, encoding: .utf8) {
+                                let returnString = self.formatJson(jsonString: jsonString)
+                                self.responseTextView.text = returnString
+                                if let jsonData = jsonString.data(using: .utf8) {
+                                    if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                                        print("JSON 응답 데이터: \(jsonObject)")
+                                    }
+                                }
+                            }
+                        } catch {
+                            print("JSON 파싱 실패: \(error)")
+                        }
+                    }
                 case .failure(let error):
                     print("POST 요청 실패: \(error)")
                 }
@@ -256,8 +312,16 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     
     // headers
     func apiCallByHeaders(){
+        var apiUrl = "http://13.125.207.44:2721/api/get"
+        
+        var params: [String: Any] = [:]
+        for(key, value, checked) in data {
+            if checked {
+                params[key] = value
+            }
+        }
+        print("Params : \(params)")
         var headers: HTTPHeaders = [
-            "Authorization": "Bearer your_token_here",
             "Accept": "application/json"
         ]
         
@@ -266,13 +330,33 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                 headers[key] = value
             }
         }
-        var apiUrl = textField.text ?? "" // 입력 Url
-        var methodType = self.methodLabel
+        print("Header : \(headers)")
+       // let apiUrl = textField.text ?? "" // 입력 Url
+        let methodType = self.methodLabel
         if methodType.text == "GET" {
             AF.request(apiUrl, method: HTTPMethod.get, headers: headers).response { response in
                 switch response.result {
                 case .success(let data):
-                    print("GET 요청. 성공: \(data)")
+                    if let data = data {
+                        print("data : \(data)")
+                        if let mimeType = response.response?.mimeType {
+                            print("응답 MIME 타입: \(mimeType)")
+                        }
+                        
+                        do {
+                            if let jsonString = String(data: data, encoding: .utf8) {
+                                let returnString = self.formatJson(jsonString: jsonString)
+                                self.responseTextView.text = returnString
+                                if let jsonData = jsonString.data(using: .utf8) {
+                                    if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                                        print("JSON 응답 데이터: \(jsonObject)")
+                                    }
+                                }
+                            }
+                        } catch {
+                            print("JSON 파싱 실패: \(error)")
+                        }
+                    }
                 case .failure(let error):
                     print("GET 요청 실패: \(error)")
                 }
@@ -281,7 +365,26 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             AF.request(apiUrl, method: HTTPMethod.delete).response { response in
                 switch response.result {
                 case .success(let data):
-                    print("POST 요청 성공: \(data)")
+                    if let data = data {
+                        print("data : \(data)")
+                        if let mimeType = response.response?.mimeType {
+                            print("응답 MIME 타입: \(mimeType)")
+                        }
+                        
+                        do {
+                            if let jsonString = String(data: data, encoding: .utf8) {
+                                let returnString = self.formatJson(jsonString: jsonString)
+                                self.responseTextView.text = returnString
+                                if let jsonData = jsonString.data(using: .utf8) {
+                                    if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                                        print("JSON 응답 데이터: \(jsonObject)")
+                                    }
+                                }
+                            }
+                        } catch {
+                            print("JSON 파싱 실패: \(error)")
+                        }
+                    }
                 case .failure(let error):
                     print("POST 요청 실패: \(error)")
                 }
@@ -294,7 +397,35 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     
     // body
     func apiCallByBody(){
+        let reqBody = """
+{
+    "No": "D190322",
+    "inItem": {
+        "name": "SEONGHO",
+        "age": 32
+    }
+}
+"""
+        print(reqBody)
+        do {
+            if let jsonData = reqBody.data(using: .utf8) {
+                if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                    print("reqBody JSON 요청 데이터: \(jsonObject)")
+                }
+            }
+        } catch {
+            print("reqBody JSON 파싱 실패")
+        }
         
+    }
+    // 탭 Params, Headders, Body 선택시 탭 색깔바꾸기
+    @objc func changeButtonBackgroundColor(tabButton: UIButton){
+        for button in buttonArray {
+            button.backgroundColor = .white
+            if button == tabButton {
+                tabButton.backgroundColor = .systemBlue
+            }
+        }
     }
     
     
@@ -303,12 +434,26 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         let headersButton = createButton(title: "Headers")
         let bodyButton = createButton(title: "Body")
         
+        // 버튼의 텍스트 색상 설정
+        paramsButton.setTitleColor(.black, for: .normal)
+        headersButton.setTitleColor(.black, for: .normal)
+        bodyButton.setTitleColor(.black, for: .normal)
+            
+        buttonArray = [paramsButton, headersButton, bodyButton]
+        
+        // 클릭 이벤트 연결 - selector 사용 시 인수는 자동으로 전달됨
+        paramsButton.addTarget(self, action: #selector(changeButtonBackgroundColor(tabButton:)), for: .touchUpInside)
+        headersButton.addTarget(self, action: #selector(changeButtonBackgroundColor(tabButton:)), for: .touchUpInside)
+        bodyButton.addTarget(self, action: #selector(changeButtonBackgroundColor(tabButton:)), for: .touchUpInside)
+        
+        
         tabStackView.axis = .horizontal
         tabStackView.distribution = .fillEqually
         tabStackView.addArrangedSubview(paramsButton)
         tabStackView.addArrangedSubview(headersButton)
         tabStackView.addArrangedSubview(bodyButton)
         tabStackView.translatesAutoresizingMaskIntoConstraints = false
+        tabStackView.backgroundColor = .white
         view.addSubview(tabStackView)
         
         NSLayoutConstraint.activate([
@@ -330,30 +475,48 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         print("Tab selected: \(sender.currentTitle ?? "")")
         if sender.currentTitle == "Body" {
             tabIndex = 2
-            requestBodyInfo()
+            requestBodyInfo()  // Body Information 만들기
         }
         else if sender.currentTitle == "Params" {
             tabIndex = 0
-            requestTableInfo()
+            requestTableInfo() // Table 형태 만들기
         }
         else {
             tabIndex = 1
-            requestTableInfo()
+            requestTableInfo() // Table 형태 만들기
         }
         // Handle tab switching logic here
     }
     
     func requestBodyInfo() {
         tableView.isHidden = true
+        
+        reqBodyNote.isHidden = false함.
+        // 전체 배경 색상을 회색으로 설정
+        reqBodyNote.backgroundColor = .lightGray
+        
+        reqBodyNote.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(reqBodyNote)
+        
+        NSLayoutConstraint.activate([
+            reqBodyNote.topAnchor.constraint(equalTo: tabStackView.bottomAnchor, constant: 10),
+            reqBodyNote.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            reqBodyNote.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            reqBodyNote.bottomAnchor.constraint(equalTo: responseTextView.topAnchor, constant: -10) // 여백 수정
+        ])
+        
     }
     
     func requestTableInfo(){
         tableView.isHidden = false
+        reqBodyNote.isHidden = true
     }
     
     func setupTableView() {
+        tableView.isHidden = false
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.backgroundColor = .white
         tableView.register(TableViewController.self, forCellReuseIdentifier: "KeyValueCell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
@@ -373,7 +536,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         responseLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(responseLabel)
         
-        let responseTextView = UITextView()
+        
         responseTextView.text = "Hit send to get a response."
         responseTextView.layer.borderWidth = 1
         responseTextView.layer.borderColor = UIColor.lightGray.cgColor
@@ -431,67 +594,26 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         return cell
     }
     
-    
-}
-// protocol
-protocol Endpoint {
-    var baseURL: String { get }
-    var url: URL { get }
-    var path: String { get }
-    var headers: [String: String] { get }
-    var query: [String: String] { get }
-    var parameters: [String: Any] { get }
-    var method: HTTPMethod { get }
-    var encoding: URLEncoding { get }
-}
-
-extension Endpoint {
-    var url: URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = self.baseURL
-        components.path = self.path
-        components.queryItems = self.query.map{ URLQueryItem(name: $0, value: $1) }
-        return components.url!
-    }
-}
-
-enum APIError: Error {
-    case networkingError(error: Error)
-}
-
-class AlamofireNetworkingManager {
-    static let shared = AlamofireNetworkingManager()
-    private init() {}
-    
-    func run<T: Decodable>(_ endpoint: Endpoint, type: T.Type) -> AnyPublisher<T, APIError> {
-        let headersArray = endpoint.headers.map {
-            HTTPHeader(name: $0, value: $1)
+    func formatJson(jsonString: String) -> String{
+        var returnData = ""
+        var inx = 0
+        let size = jsonString.count
+        for elem in jsonString {
+            inx += 1
+            if elem == "{" || elem == "," || elem == "}" {
+                print(elem)
+                if inx < size {
+                    returnData = returnData + String(elem) + "\n" + "  "
+                }
+                else {
+                    returnData = returnData + "\n" + String(elem)
+                }
+            } else {
+                returnData = returnData + "" + String(elem)
+            }
+           
         }
-        
-        let headers = HTTPHeaders(headersArray)
-        
-        return AF.request(endpoint.url,
-                          method: endpoint.method,
-                          parameters: endpoint.parameters,
-                          encoding: endpoint.encoding,
-                          headers: headers)
-        .publishDecodable(type: T.self)
-        .value()
-        .mapError { error in
-            print(error.localizedDescription)
-            return APIError.networkingError(error: error)
-        }
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
-    }
-    
-    func handleCompletion(completion: Subscribers.Completion<APIError>) {
-        switch completion {
-        case .finished:
-            break
-        case .failure(let error):
-            print(error.localizedDescription)
-        }
+        print(returnData)
+        return returnData
     }
 }

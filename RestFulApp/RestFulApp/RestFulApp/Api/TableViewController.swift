@@ -27,11 +27,13 @@ class TableViewController: UITableViewCell, UITextFieldDelegate {
         valueTextField.delegate = self
         
         keyTextField.borderStyle = .roundedRect
+        keyTextField.backgroundColor = .lightText
         keyTextField.placeholder = "Key"
         keyTextField.translatesAutoresizingMaskIntoConstraints = false
         
         valueTextField.borderStyle = .roundedRect
         valueTextField.placeholder = "Value"
+        valueTextField.backgroundColor = .lightText
         valueTextField.translatesAutoresizingMaskIntoConstraints = false
         
         checkBox.setTitle("☐", for: .normal)
@@ -42,6 +44,7 @@ class TableViewController: UITableViewCell, UITextFieldDelegate {
         contentView.addSubview(checkBox)
         contentView.addSubview(keyTextField)
         contentView.addSubview(valueTextField)
+        contentView.backgroundColor = .clear
         
         NSLayoutConstraint.activate([
             checkBox.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
