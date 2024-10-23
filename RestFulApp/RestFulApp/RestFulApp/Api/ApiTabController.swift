@@ -4,7 +4,7 @@ import DropDown
 import Alamofire
 import Combine
 
-class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
     
     // var pickerView = UIPickerView()
     var methodTypeData = ["GET", "POST", "PUT", "DELETE"]
@@ -20,7 +20,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     var tabIndex = 0 // 0, 1 = Param, Header, 2 = Body
     let responseTextView = UITextView()
     var buttonArray : [UIButton] = [] // Params, Headers, Body 버튼 넣어두는 배열
-    let reqBodyNote = UITextField()  // reqBody
+    let reqBodyNote = UITextView()  // reqBody
     
     
     override func viewDidLoad() {
@@ -396,29 +396,45 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     }
     
     // body
-    func apiCallByBody(){
-        let reqBody = """
-{
-    "No": "D190322",
-    "inItem": {
-        "name": "SEONGHO",
-        "age": 32
-    }
-}
-"""
-        print(reqBody)
-        do {
-            if let jsonData = reqBody.data(using: .utf8) {
-                if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
-                    print("reqBody JSON 요청 데이터: \(jsonObject)")
-                }
+    func apiCallByBody() {
+        // Fetch the input string from reqBodyNote and clean it
+        var reqBody = reqBodyNote.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        // Replace newlines properly and remove unnecessary spaces
+        reqBody = reqBody.replacingOccurrences(of: "\n", with: "")
+        reqBody = reqBody.replacingOccurrences(of: " ", with: "")
+        reqBody = reqBody.replacingOccurrences(of: "{", with: "[")
+        reqBody = reqBody.replacingOccurrences(of: "}", with: "]")
+        // 보낼 JSON 데이터 생성
+        let parameters: [String: Any] = [
+            "No": "D190322",
+            "inItem": [
+                "name": "SEONGHO",
+                "age": 32
+            ]
+        ]
+        print(parameters)
+        
+        // AF.request(
+        
+        // Convert the cleaned string to Data
+        if let jsonData = reqBody.data(using: .utf8) {
+            print("jsonData: \(jsonData)")
+            
+            do {
+                // Try to convert the Data to a JSON object
+                let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: [])
+                print("jsonObject: \(jsonObject)")
+            } catch {
+                print("Error during JSONSerialization: \(error)")
             }
-        } catch {
-            print("reqBody JSON 파싱 실패")
+        } else {
+            print("Failed to convert reqBody to Data.")
         }
         
-    }
-    // 탭 Params, Headders, Body 선택시 탭 색깔바꾸기
+        print("Final reqBody: \(reqBody)")
+    }    // 탭 Params, Headders, Body 선택시 탭 색깔바꾸기
+    
     @objc func changeButtonBackgroundColor(tabButton: UIButton){
         for button in buttonArray {
             button.backgroundColor = .white
@@ -491,10 +507,12 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     func requestBodyInfo() {
         tableView.isHidden = true
         
-        reqBodyNote.isHidden = false함.
+        reqBodyNote.isHidden = false
         // 전체 배경 색상을 회색으로 설정
         reqBodyNote.backgroundColor = .lightGray
-        
+        reqBodyNote.delegate = self
+        reqBodyNote.isScrollEnabled = true
+        reqBodyNote.keyboardType = .default
         reqBodyNote.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(reqBodyNote)
         

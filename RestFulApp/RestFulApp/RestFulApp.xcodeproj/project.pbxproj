@@ -26,6 +26,8 @@
 		2093F2612CB76F3D00BA1E71 /* MyCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */; };
 		2093F2642CB787E200BA1E71 /* CollectionTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2632CB787E200BA1E71 /* CollectionTabController.swift */; };
 		2093F2662CB78D9200BA1E71 /* RequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2652CB78D9200BA1E71 /* RequestModel.swift */; };
+		20CBB0412CC8C5F200A6F85B /* HistoryCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CBB0402CC8C5F200A6F85B /* HistoryCollectionCell.swift */; };
+		20CBB0452CC8DB5600A6F85B /* RealmDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CBB0442CC8DB5600A6F85B /* RealmDao.swift */; };
 		20FDB5C52CBF3EB500D47943 /* ApiTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDB5C42CBF3EB500D47943 /* ApiTabController.swift */; };
 		20FDB5C72CBF8F3C00D47943 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20FDB5C62CBF8F3C00D47943 /* TableViewController.swift */; };
 		46B65A1C4ECAC9BD37941924 /* Pods_RestFulApp_RestFulAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 548C389C8E4B112F01E500C9 /* Pods_RestFulApp_RestFulAppTests.framework */; };
@@ -85,6 +87,8 @@
 		2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCollectionViewCell.swift; sourceTree = "<group>"; };
 		2093F2632CB787E200BA1E71 /* CollectionTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionTabController.swift; sourceTree = "<group>"; };
 		2093F2652CB78D9200BA1E71 /* RequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModel.swift; sourceTree = "<group>"; };
+		20CBB0402CC8C5F200A6F85B /* HistoryCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryCollectionCell.swift; sourceTree = "<group>"; };
+		20CBB0442CC8DB5600A6F85B /* RealmDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDao.swift; sourceTree = "<group>"; };
 		20FDB5C42CBF3EB500D47943 /* ApiTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiTabController.swift; sourceTree = "<group>"; };
 		20FDB5C62CBF8F3C00D47943 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		32DDB468D01CE95D83987742 /* Pods-RestFulApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RestFulApp.release.xcconfig"; path = "Target Support Files/Pods-RestFulApp/Pods-RestFulApp.release.xcconfig"; sourceTree = "<group>"; };
@@ -131,7 +135,7 @@
 		2002F1A92CC76B41003F0AA6 /* History */ = {
 			isa = PBXGroup;
 			children = (
-				2002F1AA2CC76B6E003F0AA6 /* Model */,
+				20CBB03F2CC8C5D500A6F85B /* Cell */,
 				2002F1AE2CC76BD0003F0AA6 /* HistoryViewController.swift */,
 			);
 			path = History;
@@ -140,16 +144,9 @@
 		2002F1AA2CC76B6E003F0AA6 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2002F1AC2CC76BAD003F0AA6 /* HistoryModel.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		2002F1AB2CC76B7E003F0AA6 /* Model */ = {
-			isa = PBXGroup;
-			children = (
 				2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */,
 				2093F2652CB78D9200BA1E71 /* RequestModel.swift */,
+				2002F1AC2CC76BAD003F0AA6 /* HistoryModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -179,6 +176,7 @@
 		204860B32C8FD55E006BC8A6 /* RestFulApp */ = {
 			isa = PBXGroup;
 			children = (
+				20CBB0422CC8DA2D00A6F85B /* Database */,
 				2002F1A92CC76B41003F0AA6 /* History */,
 				20FDB5C32CBF3E0200D47943 /* Api */,
 				2093F25D2CB76E2E00BA1E71 /* Collection */,
@@ -223,11 +221,43 @@
 		2093F25D2CB76E2E00BA1E71 /* Collection */ = {
 			isa = PBXGroup;
 			children = (
-				2002F1AB2CC76B7E003F0AA6 /* Model */,
-				2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */,
+				20CBB03E2CC8C5B400A6F85B /* Cell */,
 				2093F2632CB787E200BA1E71 /* CollectionTabController.swift */,
 			);
 			path = Collection;
+			sourceTree = "<group>";
+		};
+		20CBB03E2CC8C5B400A6F85B /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		20CBB03F2CC8C5D500A6F85B /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				20CBB0402CC8C5F200A6F85B /* HistoryCollectionCell.swift */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		20CBB0422CC8DA2D00A6F85B /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				20CBB0432CC8DA4D00A6F85B /* Dao */,
+				2002F1AA2CC76B6E003F0AA6 /* Model */,
+			);
+			path = Database;
+			sourceTree = "<group>";
+		};
+		20CBB0432CC8DA4D00A6F85B /* Dao */ = {
+			isa = PBXGroup;
+			children = (
+				20CBB0442CC8DB5600A6F85B /* RealmDao.swift */,
+			);
+			path = Dao;
 			sourceTree = "<group>";
 		};
 		20FDB5C32CBF3E0200D47943 /* Api */ = {
@@ -526,6 +556,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20CBB0412CC8C5F200A6F85B /* HistoryCollectionCell.swift in Sources */,
 				204860B92C8FD55E006BC8A6 /* ViewController.swift in Sources */,
 				204860B52C8FD55E006BC8A6 /* AppDelegate.swift in Sources */,
 				2093F2612CB76F3D00BA1E71 /* MyCollectionViewCell.swift in Sources */,
@@ -533,6 +564,7 @@
 				20FDB5C72CBF8F3C00D47943 /* TableViewController.swift in Sources */,
 				207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */,
 				2002F1AD2CC76BAD003F0AA6 /* HistoryModel.swift in Sources */,
+				20CBB0452CC8DB5600A6F85B /* RealmDao.swift in Sources */,
 				2093F2642CB787E200BA1E71 /* CollectionTabController.swift in Sources */,
 				204860B72C8FD55E006BC8A6 /* SceneDelegate.swift in Sources */,
 				2093F25F2CB76E6000BA1E71 /* CollectionModel.swift in Sources */,

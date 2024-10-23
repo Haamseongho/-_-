@@ -11,7 +11,8 @@ target 'RestFulApp' do
   pod 'RxSwift'
   pod 'DropDown'
   pod 'GoogleAppMeasurement'
-
+  pod 'Realm'
+  pod 'RealmSwift'  
   # Pods for RestFulApp
   
   target 'RestFulAppTests' do

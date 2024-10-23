@@ -16,73 +16,21 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
     private var dataPassDelegate: DataPassingDelegate?
     
     
-    private var items: [CollectionModel] = [
-        CollectionModel(openImage: UIImageView(image: UIImage(systemName: "arrow.up")), title: "Collection1", requestCount: 1, optionImage: UIImageView(image: UIImage(systemName: "ellipsis")), borderView: UIView(), subItems:  [
-            RequestModel(type: "GET", title: "title1", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
-            RequestModel(type: "GET", title: "title1", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
-            RequestModel(type: "GET", title: "title1", optionImage: UIImageView(image: UIImage(systemName: "ellipsis")))
-        ], isExpanded: false),
-        CollectionModel(openImage: UIImageView(image: UIImage(systemName: "arrow.up")), title: "Collection2", requestCount: 2, optionImage: UIImageView(image: UIImage(systemName: "ellipsis")), borderView: UIView(), subItems: [
-            RequestModel(type: "POST", title: "title2", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
-            RequestModel(type: "POST", title: "title3", optionImage: UIImageView(image: UIImage(systemName: "ellipsis")))
-        ], isExpanded: false),
-        CollectionModel(openImage: UIImageView(image: UIImage(systemName: "arrow.up")), title: "Collection3", requestCount: 3, optionImage: UIImageView(image: UIImage(systemName: "ellipsis")), borderView: UIView(), subItems: [
-            RequestModel(type: "DELETE", title: "title4", optionImage: UIImageView(image: UIImage(systemName: "ellipsis"))),
-            RequestModel(type: "PUT", title: "title5", optionImage: UIImageView(image: UIImage(systemName: "ellipsis")))
-        ], isExpanded: false)
-    ]
+    private var items: [CollectionModel]
     
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        setupViews()
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return items.count
     }
     
-    @objc func handleOpenImage(_ sender: UITapGestureRecognizer) {
-        guard let tappedImageView = sender.view as? UIImageView else { return }
-        guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        let requestItems = items[indexPath.item].subItems
-        // 해당 셀의 상태(isExpanded)를 전환
-        items[indexPath.item].isExpanded.toggle()
-        if items[indexPath.item].isExpanded {
-            tappedImageView.image = UIImage(systemName: "arrow.down")
-            flag = true
-        } else {
-            tappedImageView.image = UIImage(systemName: "arrow.up")
-            flag = false
-        }
-        
-        // 해당 셀만 다시 로드
-        collectionView.reloadItems(at: [indexPath])
-        
-        // 레이아웃을 강제로 다시 계산
-        collectionView.collectionViewLayout.invalidateLayout()
-        
-        cell.setRequestItems(requestItems, isExpanded: items[indexPath.item].isExpanded)
-        
-       
-    }
-    
-    @objc func moveToTabApi(_ sender: UITapGestureRecognizer){
-        guard let tappedImageView = sender.view as? UIImageView else { return }
-        guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        // 우선 예시로 여기서 관리해봄
-        let type: String? = items[indexPath.item].subItems.first?.type
-        let title: String? = items[indexPath.item].subItems.first?.title
-        
-      
-        if let tabBarController = tabBarController,
-           let apiTab = tabBarController.viewControllers?[1] as? ApiTabController {
-            apiTab.receivedData = ApiModel(type: type ?? "", title: title ?? "")
-            
-            tabBarController.selectedIndex = 1
-        }
-    }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ParentCell", for: indexPath) as! MyCollectionViewCell
-        
-        
         cell.backgroundColor = .white
         let label = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 20))
         label.text = items[indexPath.item].title
@@ -171,11 +119,56 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
             return CGSize(width: collectionView.bounds.width - 20, height: baseHeight)
         }
     }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
+    
+    
+    @objc func handleOpenImage(_ sender: UITapGestureRecognizer) {
+        guard let tappedImageView = sender.view as? UIImageView else { return }
+        guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let requestItems = items[indexPath.item].subItems
+        // 해당 셀의 상태(isExpanded)를 전환
+        items[indexPath.item].isExpanded.toggle()
+        if items[indexPath.item].isExpanded {
+            tappedImageView.image = UIImage(systemName: "arrow.down")
+            flag = true
+        } else {
+            tappedImageView.image = UIImage(systemName: "arrow.up")
+            flag = false
+        }
         
+        // 해당 셀만 다시 로드
+        collectionView.reloadItems(at: [indexPath])
+        
+        // 레이아웃을 강제로 다시 계산
+        collectionView.collectionViewLayout.invalidateLayout()
+        
+        cell.setRequestItems(requestItems, isExpanded: items[indexPath.item].isExpanded)
+        
+       
+    }
+    
+    @objc func moveToTabApi(_ sender: UITapGestureRecognizer){
+        guard let tappedImageView = sender.view as? UIImageView else { return }
+        guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        // 우선 예시로 여기서 관리해봄
+        let type: String? = items[indexPath.item].subItems.first?.type
+        let title: String? = items[indexPath.item].subItems.first?.title
+        
+      
+        if let tabBarController = tabBarController,
+           let apiTab = tabBarController.viewControllers?[1] as? ApiTabController {
+            apiTab.receivedData = ApiModel(type: type ?? "", title: title ?? "")
+            
+            tabBarController.selectedIndex = 1
+        }
+    }
+    
+   
+   
+
+    
+    func setupViews(){
         // 라벨
         let label = UILabel()
         label.text = "New Collection"
@@ -231,22 +224,34 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
                 collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
             ]
         )
-        
-        
     }
     
     // New Collection 선택한 상황
     @objc private func addImageTapped(){
         print("addImage Tapped")
+        showInputDialog(title: "CREATE A NEW COLLECTION", message: "Collection Name", inputPlaceholder: "Create a new Collection", subTitle: "CREATE", actionHandler: { inputText in
+            print("User Input Collection : \(inputText)")
+        })
     }
     
-    func passData(apiSendObject: ApiModel){
-        dataPassDelegate?.passData(data: apiSendObject)
+    func showInputDialog(title: String?, message: String?, inputPlaceholder: String?, subTitle: String?, actionHandler: ((_ text: String?) -> Void)){
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addTextField { textField in
+            textField.placeholder = inputPlaceholder
+            textField.keyboardType = .default
+        }
+        
+        let cancelAction = UIAlertAction(title: "CANCEL", style: .cancel, handler: {_ in print("Cancel")})
+        alertController.addAction(cancelAction)
+        let action = UIAlertAction(title: subTitle, style: .default) { _ in
+            let textField = alertController.textFields?.first
+            actionHandler(textField?.text)
+        }
+        alertController.addAction(action)
+        
+        // 대화상자 화면에 표시
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.present(alertController, animated: true, completion: nil)
+        }
     }
-    
 }
-
-protocol DataPassingDelegate {
-    func passData(data: ApiModel)
-}
-
