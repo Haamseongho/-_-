@@ -11,7 +11,6 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     var tableView = UITableView()
     var data: [(key: String, value: String, checked: Bool)] = [("", "", false)] // Key-Value pairs
     var tabStackView = UIStackView()
-    var receivedData: ApiModel?
     let dropDown = DropDown() // DropDown 인스턴스 생성
     let button = UIButton(type: .system)
     var methodLabel = UILabel()
@@ -42,16 +41,16 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if receivedData?.title != nil && receivedData?.type != nil {
-            titleLabel.text = receivedData?.title
-            titleLabel.textColor = .black
-            titleLabel.font = UIFont.systemFont(ofSize: 16)
-            let type = receivedData?.type ?? "GET"
-            if let index = methodTypeData.firstIndex(of: type) {
-                dropDown.selectRow(index)
-                methodLabel.text = type
-            }
-        }
+//        if receivedData?.title != nil && receivedData?.type != nil {
+//            titleLabel.text = receivedData?.title
+//            titleLabel.textColor = .black
+//            titleLabel.font = UIFont.systemFont(ofSize: 16)
+//            let type = receivedData?.type ?? "GET"
+//            if let index = methodTypeData.firstIndex(of: type) {
+//                dropDown.selectRow(index)
+//                methodLabel.text = type
+//            }
+//        }
     }
     
     func setupDropDown(){
@@ -73,22 +72,22 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         borderView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         view.addSubview(borderView)
-        if receivedData?.title != nil && receivedData?.type != nil{
-            let title = receivedData?.title
-            titleLabel.text = title
-            titleLabel.textColor = .black
-            titleLabel.font = UIFont.systemFont(ofSize: 16)
-            let type = receivedData?.type ?? "GET"
-            if let index = methodTypeData.firstIndex(of: type) {
-                dropDown.selectRow(index)
-                methodLabel.text = type
-            }
-        }
-        else {
-            titleLabel.text = "test"
-            titleLabel.textColor = .black
-            titleLabel.font = UIFont.systemFont(ofSize: 24)
-        }
+//        if receivedData?.title != nil && receivedData?.type != nil{
+//            let title = receivedData?.title
+//            titleLabel.text = title
+//            titleLabel.textColor = .black
+//            titleLabel.font = UIFont.systemFont(ofSize: 16)
+//            let type = receivedData?.type ?? "GET"
+//            if let index = methodTypeData.firstIndex(of: type) {
+//                dropDown.selectRow(index)
+//                methodLabel.text = type
+//            }
+//        }
+//        else {
+//            titleLabel.text = "test"
+//            titleLabel.textColor = .black
+//            titleLabel.font = UIFont.systemFont(ofSize: 24)
+//        }
         
         // DropDown 설정
         dropDown.anchorView = borderView // 드롭다운을 버튼 아래에 앵커링
