@@ -8,53 +8,57 @@
 import Foundation
 import UIKit
 import RealmSwift
-class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
     var subCollectionView: UICollectionView!
     private var subItems: List<RequestModel> = List<RequestModel>()
     private var imageSubOptArray: [UIImageView] = []
     override init(frame: CGRect){
         super.init(frame: frame)
         setupSubCollectionView()
-       // subCollectionView.isHidden = false
-        subCollectionView.reloadData()  // 데이터 리로드
+        awakeFromNib()
     }
     required init?(coder: NSCoder) {
         super.init(coder:coder)
-        subCollectionView.delegate = self
-        subCollectionView.dataSource = self
-
         setupSubCollectionView()
-       // subCollectionView.isHidden = false
-        subCollectionView.reloadData()  // 데이터 리로드
+        awakeFromNib()
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         // 셀 상태 초기화
+        subItems = List<RequestModel>() // 또는 다른 초기화
+        imageSubOptArray = []
+        subCollectionView.reloadData() // 데이터 새로 고침
+    }
+    
+    override func awakeFromNib() {
+        print("awakeFromNIb!!")
+        super.awakeFromNib()
     }
     
     func setupSubCollectionView(){
         let layout = UICollectionViewFlowLayout()
-        // layout.itemSize = CGSize(width: 60, height: 60) // 서브 셀 크기 설정
         layout.minimumLineSpacing = 10
         layout.scrollDirection = .vertical
+        
         subCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-      //  subCollectionView.backgroundColor = .lightGray
-        
-        print("여기되나?")
         subCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SubCell")
-        subCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(subCollectionView)
+        addSubview(subCollectionView)
         
+        subCollectionView.delegate = self
+        subCollectionView.dataSource = self
+        subCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            subCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-            subCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0),
-            subCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            subCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+            subCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            subCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            subCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            subCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
         
-        subCollectionView.reloadData()
+        // setup 완료 후에 reloadData 호출
+        subCollectionView.reloadData() // 데이터 새로고침
+        print("subCollectionView 설정 완료")
     }
     
     func setRequestItems(_ items: List<RequestModel>, isExpanded: Bool) {
@@ -64,18 +68,21 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
         // isExpanded 상태에 따라 자식 CollectionView 표시/숨김 설정
         subCollectionView.isHidden = !isExpanded
         print("SubItems count in setRequestItems: \(self.subItems.count)")
+        print("2")
         subCollectionView.reloadData() // 데이터 새로고침
     }
-    
+    // UICollectionViewDataSource 메서드
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         print("subItemsCount: \(self.subItems.count)")
         return subItems.count
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        print("여기는 되나요?")
         return CGSize(width: collectionView.bounds.width - 20, height: 60) // 서브 셀 크기 설정
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        print("여기는 되나요2?")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SubCell", for: indexPath)
         // 기존의 subviews를 모두 제거하고 새롭게 추가 (중복 방지)
         print("abc \(cell.contentView)")
@@ -103,7 +110,6 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleOpenImage(_:)))
         optionImage.addGestureRecognizer(tapGesture)
         
-        
         cell.contentView.addSubview(type)
         cell.contentView.addSubview(title)
         cell.contentView.addSubview(optionImage)
@@ -129,5 +135,4 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
         print("image Clicked")
     }
     
-   
 }

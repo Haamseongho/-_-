@@ -14,6 +14,7 @@ class HistoryModel: Object {
     @Persisted var type: String
     @Persisted var title: String
     @Persisted var url: String
+    @Persisted var date: Date
     @Persisted var params = List<ParamsObject>()
     @Persisted var headers = List<ParamsObject>()
     @Persisted var body: String

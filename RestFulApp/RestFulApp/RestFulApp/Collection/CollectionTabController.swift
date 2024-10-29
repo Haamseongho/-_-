@@ -9,14 +9,12 @@ import Foundation
 import UIKit
 import SwiftUI
 import RxSwift
-import Realm
 import RealmSwift
 
 class CollectionTabController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     private var collectionView: UICollectionView!
     private var flag = false
     private var realmDao = RealmDao()
-    
     
     private var items: [CollectionModel] = [] // ParentCell로 들어가는 아이템
     private var isExpandedArray: [Bool] = [] // 화살표 누름/닫힘 구분값
@@ -28,6 +26,8 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         super.viewDidLoad()
         view.backgroundColor = .white
         getDataFromDB()
+        collectionView.delegate = self
+        collectionView.dataSource = self
         setupViews()
         
     }
@@ -61,8 +61,8 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ParentCell", for: indexPath) as! MyCollectionViewCell
+   
         cell.backgroundColor = .white
-        
         // 기존에 설정된 서브뷰 삭제
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         cell.tag = indexPath.row
@@ -122,6 +122,8 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         cell.contentView.addSubview(openImage)
         cell.contentView.addSubview(optionImage)
         cell.contentView.addSubview(borderView)
+        
+        
         // Add Auto Layout constraints
         NSLayoutConstraint.activate([
             // Open image constraints
@@ -157,7 +159,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         let isExpanded = isExpandedArray[indexPath.item]
         
         cell.setRequestItems(requestItems, isExpanded: isExpanded)
-        
+    //    cell.subCollectionView.reloadData()
         return cell
     }
     
@@ -168,9 +170,11 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         // flag가 true일 경우, 자식 아이템의 높이를 포함한 크기
         if isExpandedArray[indexPath.item] {
             let additionalHeight = CGFloat(requestItemsCount * 60) // 각 자식 아이템당 60의 높이
+            print("TEST")
             return CGSize(width: collectionView.bounds.width - 20, height: baseHeight + additionalHeight)
         } else {
             // flag가 false일 경우, 기본 높이만 반환
+            print("TEST2")
             return CGSize(width: collectionView.bounds.width - 20, height: baseHeight)
         }
     }
@@ -199,8 +203,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         collectionView.collectionViewLayout.invalidateLayout()
         print("requestItems: \(requestItems)")
         cell.setRequestItems(requestItems, isExpanded: isExpandedArray[indexPath.item])
-        
-        
+         
     }
     
     @objc func handleOptionImage(_ sender: UITapGestureRecognizer){
@@ -229,9 +232,6 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
     //            tabBarController.selectedIndex = 1
     //        }
     //    }
-    
-    
-    
     
     
     func setupViews(){
@@ -480,6 +480,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
                 print("inputText: \(inputText1) / \(inputText2)")
                 if(inputText1.trimmingCharacters(in: .whitespacesAndNewlines) != "" && inputText2.trimmingCharacters(in: .whitespacesAndNewlines) != ""){                    
                     self.appendRequest(title: inputText1, type: inputText2, index: index)
+                  
                 }
                 else {
                     self.showWarningPopup()
@@ -532,7 +533,12 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         
         // id로 갯수 뽑아와서 requestCount 수정하기
         self.realmDao.updateRequestCount(id: id)
+        // 리스트 추가
+        /*
+         id 값으로 현재 리스트를 찾은 다음에 거기에 리스트로 추가하기
+         */
         // 화면 재조회
+        print("self Items Check : \(self.items)")
         self.collectionView.reloadData()
     }
     
