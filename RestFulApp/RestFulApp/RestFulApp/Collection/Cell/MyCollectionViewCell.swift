@@ -10,7 +10,8 @@ import UIKit
 import RealmSwift
 class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
     var subCollectionView: UICollectionView!
-    private var subItems: List<RequestModel> = List<RequestModel>()
+    // private var subItems: List<RequestModel> = List<RequestModel>()
+    private var subItems: [RequestModel] = []
     private var imageSubOptArray: [UIImageView] = []
     override init(frame: CGRect){
         super.init(frame: frame)
@@ -26,7 +27,7 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
     override func prepareForReuse() {
         super.prepareForReuse()
         // 셀 상태 초기화
-        subItems = List<RequestModel>() // 또는 다른 초기화
+        subItems = [] // 또는 다른 초기화
         imageSubOptArray = []
         subCollectionView.reloadData() // 데이터 새로 고침
     }
@@ -61,7 +62,7 @@ class MyCollectionViewCell: UICollectionViewCell, UICollectionViewDelegate, UICo
         print("subCollectionView 설정 완료")
     }
     
-    func setRequestItems(_ items: List<RequestModel>, isExpanded: Bool) {
+    func setRequestItems(_ items: Array<RequestModel>, isExpanded: Bool) {
         self.subItems = items  // requestModel을 리스트 형태로 우선 넘기기
         self.imageSubOptArray = Array(repeating: UIImageView(image: UIImage(systemName: "ellipsis")), count: items.count)
         print("isExpanded : \(isExpanded)")

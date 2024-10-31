@@ -158,7 +158,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         let requestItems = items[indexPath.item].requestList // subItems는 실제 데이터 배열이어야 함
         let isExpanded = isExpandedArray[indexPath.item]
         
-        cell.setRequestItems(requestItems, isExpanded: isExpanded)
+        cell.setRequestItems(Array(requestItems), isExpanded: isExpanded)
     //    cell.subCollectionView.reloadData()
         return cell
     }
@@ -202,7 +202,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         // 레이아웃을 강제로 다시 계산
         collectionView.collectionViewLayout.invalidateLayout()
         print("requestItems: \(requestItems)")
-        cell.setRequestItems(requestItems, isExpanded: isExpandedArray[indexPath.item])
+        cell.setRequestItems(Array(requestItems), isExpanded: isExpandedArray[indexPath.item])
          
     }
     

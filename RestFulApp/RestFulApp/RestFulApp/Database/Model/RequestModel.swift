@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import RealmSwift
+import Realm
 
 class RequestModel: Object {
     @Persisted(primaryKey: true) var id: ObjectId
@@ -15,15 +16,3 @@ class RequestModel: Object {
     @Persisted var title: String
     @Persisted var url: String
 }
-//
-//struct RequestModel {
-//    let type: String
-//    let title: String
-//    let optionImage: UIImageView
-//}
-//
-//struct ApiModel {
-//    let type: String
-//    let title: String
-//    let url: String? = ""
-//}

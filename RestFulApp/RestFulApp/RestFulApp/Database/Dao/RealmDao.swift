@@ -9,7 +9,10 @@ import Foundation
 import Realm
 import RealmSwift
 
+
+
 class RealmDao {
+
     private let realm = try! Realm()
     // Collection - insert
     func insertCollection(_ collection: CollectionModel){
@@ -17,6 +20,8 @@ class RealmDao {
             realm.add(collection)
         }
     }
+    
+    
     
     // getAllCollection
     func getAllCollection() -> Results<CollectionModel>{
@@ -159,5 +164,13 @@ class RealmDao {
     func getHistoryByOrdersInDate() -> Results<HistoryModel> {
         let sortedHistoryItem = realm.objects(HistoryModel.self).sorted(byKeyPath: "date", ascending: false) // 내림차순 구현
         return sortedHistoryItem
+    }
+    
+    // remove History
+    func dropHistoryTable() {
+        try! realm.write {
+            let historyTB = realm.objects(HistoryModel.self)
+            realm.delete(historyTB)
+        }
     }
 }

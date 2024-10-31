@@ -6,6 +6,23 @@
 //
 
 import UIKit
+import RealmSwift
+
+func setupRealmMigration() {
+    let config = Realm.Configuration(
+        schemaVersion: 1, // 현재 스키마 버전 설정, 기존보다 높은 숫자로 설정
+        migrationBlock: { migration, oldSchemaVersion in
+            if oldSchemaVersion < 1 {
+                // 필요한 경우 속성 변환 로직을 추가
+                migration.enumerateObjects(ofType: HistoryModel.className()) { oldObject, newObject in
+                    newObject!["date"] = Date()  // 기본값 설정, 필요 시 수정
+                }
+            }
+        }
+    )
+
+    Realm.Configuration.defaultConfiguration = config
+}
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -13,6 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        setupRealmMigration()
         // 윈도우 생성
         window = UIWindow(frame: UIScreen.main.bounds)
         
