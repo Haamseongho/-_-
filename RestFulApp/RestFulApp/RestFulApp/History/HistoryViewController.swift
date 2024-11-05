@@ -52,6 +52,8 @@ class ParentCollectionViewCell: UICollectionViewCell {
     
     // func refreshSubItem
     func refreshSubItems(_ items: Array<RequestModel>){
+        
+        // items.append(reqModel)
         subItems = items
         childCollectionView.reloadData() // 변경 사항 반영
     }
@@ -72,6 +74,7 @@ extension ParentCollectionViewCell: UICollectionViewDataSource, UICollectionView
         let type = UILabel()
         type.text = subItems[indexPath.item].type
         type.translatesAutoresizingMaskIntoConstraints = false
+        type.textColor = .black
         let title = UILabel()
         title.text = subItems[indexPath.item].title
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -89,14 +92,14 @@ extension ParentCollectionViewCell: UICollectionViewDataSource, UICollectionView
         cell.contentView.addSubview(borderView)
         NSLayoutConstraint.activate([
             type.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 30),
-            type.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            type.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 30),
             type.heightAnchor.constraint(equalToConstant: 20),
             title.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 30),
             title.leadingAnchor.constraint(equalTo: type.trailingAnchor, constant: 20),
             title.heightAnchor.constraint(equalToConstant: 20),
             optionImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 30),
             optionImage.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -30),
-            borderView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 20),
+            borderView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
             borderView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
             borderView.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor),
             borderView.heightAnchor.constraint(equalToConstant: 1)
@@ -110,11 +113,11 @@ extension ParentCollectionViewCell: UICollectionViewDataSource, UICollectionView
     // 레이아웃 크기 설정
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let requestItemsCount = subItems.count
-        let baseHeight: CGFloat = 15 // Parent content 높이
-        
+        let baseHeight: CGFloat = 60 // Parent content 높이
+        print("shouldHideCells23232323 : \(shouldHideCells)")
         // flag가 true일 경우, 자식 아이템의 높이를 포함한 크기
         if !shouldHideCells {
-            let additionalHeight = CGFloat(requestItemsCount * 15) // 각 자식 아이템당 60의 높이
+            let additionalHeight = CGFloat(requestItemsCount * 60) // 각 자식 아이템당 60의 높이
             print("높이: \(baseHeight + additionalHeight)")
             return CGSize(width: collectionView.bounds.width - 20, height: baseHeight + additionalHeight)
         } else {
@@ -126,13 +129,13 @@ extension ParentCollectionViewCell: UICollectionViewDataSource, UICollectionView
     
     // 컬렉션 뷰 가장자리 여백 설정
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 40, left: 40, bottom: 10, right: 10) // 상하좌우 여백
+        return UIEdgeInsets(top: 40, left: 30, bottom: 10, right: 10) // 상하좌우 여백
     }
 }
 
 class HistoryViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    private var items: [CollectionModel] = []
+    private var items: [HistoryModel] = []
     private let borderView = UIView()
     private var realmDao = RealmDao()
     private var isExpandedArray: [Bool] = [] // 화살표 누름/닫힘 구분값
@@ -158,17 +161,25 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
         
         // 레이아웃 설정
         NSLayoutConstraint.activate([
-            parentCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
+            parentCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             parentCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
             parentCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0),
             parentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        loadData()
+    }
+    
     func loadData(){
-        let collectionResults = self.realmDao.getAllCollection()
+        let collectionResults = self.realmDao.getHistoryByOrdersInDate()
         items = Array(collectionResults)
+        print("아이템: \(items)")
         isExpandedArray = Array(repeating: false, count: items.count)
+        if let fileURL = Realm.Configuration.defaultConfiguration.fileURL {
+            print("Realm 파일 경로: \(fileURL)")
+        }
         setupViews()
         parentCollectionView.reloadData()
     }
@@ -219,9 +230,18 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
         // cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         let arrowImage1 = UIImageView()
         let dateLabel = UILabel()
-        dateLabel.text = items[indexPath.item].title // date
+        print("에러체크 :\(items[indexPath.item].date )")
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss" // 원하는 날짜 형식 지정
+        if let date = dateFormatter.date(from: dateFormatter.string(from: items[indexPath.item].date)) {
+            dateLabel.text = "\(date)"
+        } else {
+            dateLabel.text = String(items[indexPath.item].title) // date
+        }
+        
         dateLabel.font = UIFont.systemFont(ofSize: 18)
         dateLabel.textAlignment = .center
+        dateLabel.textColor = .black
         arrowImage1.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -244,13 +264,13 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
         cell.addSubview(borderView)
         
         NSLayoutConstraint.activate([
-            arrowImage1.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 10),
-            arrowImage1.topAnchor.constraint(equalTo: cell.topAnchor, constant: 10),
+            arrowImage1.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 24),
+            arrowImage1.topAnchor.constraint(equalTo: cell.topAnchor, constant: 24),
             arrowImage1.widthAnchor.constraint(equalToConstant: 24),
             arrowImage1.heightAnchor.constraint(equalToConstant: 24),
             dateLabel.leadingAnchor.constraint(equalTo: arrowImage1.leadingAnchor, constant: 30),
-            dateLabel.topAnchor.constraint(equalTo: cell.topAnchor, constant: 10),
-            borderView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: 20),
+            dateLabel.topAnchor.constraint(equalTo: cell.topAnchor, constant: 24),
+            borderView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: 10),
             borderView.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 0),
             borderView.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: 0)
         ])
@@ -288,11 +308,11 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let requestItemsCount = items[indexPath.item].requestList.count
-        let baseHeight: CGFloat = 50
+        let baseHeight: CGFloat = 60
         
         // flag가 true일 경우, 자식 아이템의 높이를 포함한 크기
         if isExpandedArray[indexPath.item] {
-            let additionalHeight = CGFloat(requestItemsCount * 50) // 각 자식 아이템당 60의 높이
+            let additionalHeight = CGFloat(requestItemsCount * 60) // 각 자식 아이템당 60의 높이
             return CGSize(width: collectionView.bounds.width - 20, height: baseHeight + additionalHeight)
         } else {
             // flag가 false일 경우, 기본 높이만 반환

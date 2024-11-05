@@ -23,7 +23,6 @@
 		207DF0D82CACCA8500C834FE /* Pods_RestFulApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 36597D8BB3315DF3287417EE /* Pods_RestFulApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */; };
 		2093F25F2CB76E6000BA1E71 /* CollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */; };
-		2093F2612CB76F3D00BA1E71 /* MyCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */; };
 		2093F2642CB787E200BA1E71 /* CollectionTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2632CB787E200BA1E71 /* CollectionTabController.swift */; };
 		2093F2662CB78D9200BA1E71 /* RequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093F2652CB78D9200BA1E71 /* RequestModel.swift */; };
 		20CBB0412CC8C5F200A6F85B /* HistoryCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CBB0402CC8C5F200A6F85B /* HistoryCollectionCell.swift */; };
@@ -84,7 +83,6 @@
 		204860E42C8FD63F006BC8A6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		207DF0DC2CACD17500C834FE /* CustomTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarController.swift; sourceTree = "<group>"; };
 		2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionModel.swift; sourceTree = "<group>"; };
-		2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCollectionViewCell.swift; sourceTree = "<group>"; };
 		2093F2632CB787E200BA1E71 /* CollectionTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionTabController.swift; sourceTree = "<group>"; };
 		2093F2652CB78D9200BA1E71 /* RequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModel.swift; sourceTree = "<group>"; };
 		20CBB0402CC8C5F200A6F85B /* HistoryCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryCollectionCell.swift; sourceTree = "<group>"; };
@@ -230,7 +228,6 @@
 		20CBB03E2CC8C5B400A6F85B /* Cell */ = {
 			isa = PBXGroup;
 			children = (
-				2093F2602CB76F3D00BA1E71 /* MyCollectionViewCell.swift */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -559,7 +556,6 @@
 				20CBB0412CC8C5F200A6F85B /* HistoryCollectionCell.swift in Sources */,
 				204860B92C8FD55E006BC8A6 /* ViewController.swift in Sources */,
 				204860B52C8FD55E006BC8A6 /* AppDelegate.swift in Sources */,
-				2093F2612CB76F3D00BA1E71 /* MyCollectionViewCell.swift in Sources */,
 				2002F1AF2CC76BD0003F0AA6 /* HistoryViewController.swift in Sources */,
 				20FDB5C72CBF8F3C00D47943 /* TableViewController.swift in Sources */,
 				207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */,

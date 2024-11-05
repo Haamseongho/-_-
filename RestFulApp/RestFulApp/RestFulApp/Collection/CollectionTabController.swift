@@ -10,6 +10,135 @@ import UIKit
 import SwiftUI
 import RxSwift
 import RealmSwift
+ 
+class MyCollectionViewCell: UICollectionViewCell {
+    static let identifier = "ParentCell"
+    var subItems : [RequestModel] = []
+    var shouldHideCells: Bool = true // 셀 숨김 여부를 결정하는 변수
+    // Child CollectionView 생성
+    let childCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .white
+        return collectionView
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        // Child CollectionView 등록 및 설정
+        childCollectionView.dataSource = self
+        childCollectionView.delegate = self
+        childCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "ChildCell")
+        
+        contentView.addSubview(childCollectionView)
+        
+        // 레이아웃 설정
+        NSLayoutConstraint.activate([
+            childCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            childCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            childCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            childCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    
+    // func refreshSubItem
+    func refreshSubItems(_ items: Array<RequestModel>){
+        subItems = items
+        print("items2323: \(items)")
+        childCollectionView.reloadData() // 변경 사항 반영
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        // 필요한 초기화 작업 수행
+        // 예: childCollectionView 데이터 초기화
+        childCollectionView.reloadData()
+    }
+
+}
+
+extension MyCollectionViewCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("subItems Count : \(subItems.count)")
+        return subItems.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChildCell", for: indexPath)
+        cell.backgroundColor = .white
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        let type = UILabel()
+        type.text = subItems[indexPath.item].type
+        type.translatesAutoresizingMaskIntoConstraints = false
+        
+        let title = UILabel()
+        title.text = subItems[indexPath.item].title
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.textColor = .black
+        type.textColor = .black
+        let optionImage = UIImageView(image: UIImage(systemName: "ellipsis"))
+        optionImage.translatesAutoresizingMaskIntoConstraints = false
+        optionImage.isUserInteractionEnabled = true
+        let borderView = UIView()
+        borderView.translatesAutoresizingMaskIntoConstraints = false
+        borderView.backgroundColor = .black
+        cell.contentView.addSubview(type)
+        cell.contentView.addSubview(title)
+        cell.contentView.addSubview(optionImage)
+        cell.contentView.addSubview(borderView)
+        NSLayoutConstraint.activate([
+            type.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 30),
+            type.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 30),
+            type.heightAnchor.constraint(equalToConstant: 20),
+            title.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 30),
+            title.leadingAnchor.constraint(equalTo: type.trailingAnchor, constant: 20),
+            title.heightAnchor.constraint(equalToConstant: 20),
+            optionImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 30),
+            optionImage.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -30),
+            borderView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
+            borderView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
+            borderView.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor),
+            borderView.heightAnchor.constraint(equalToConstant: 1)
+        ])
+        
+        
+        cell.isHidden = shouldHideCells
+        
+        
+        return cell
+    }
+    // 레이아웃 크기 설정
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let requestItemsCount = subItems.count
+        let baseHeight: CGFloat = 20 // Parent content 높이
+        print("shouldHideCells23232323 : \(shouldHideCells)")
+        // flag가 true일 경우, 자식 아이템의 높이를 포함한 크기
+        if !shouldHideCells {
+            let additionalHeight = CGFloat(requestItemsCount * 20) // 각 자식 아이템당 60의 높이
+            print("높이: \(baseHeight + additionalHeight)")
+            return CGSize(width: collectionView.bounds.width - 20, height: baseHeight + additionalHeight)
+        } else {
+            // flag가 false일 경우, 기본 높이만 반환
+            return CGSize(width: collectionView.bounds.width - 20, height: baseHeight)
+        }
+        //     return CGSize(width: collectionView.bounds.width, height: 150) // 예시 사이즈
+    }
+    
+    // 컬렉션 뷰 가장자리 여백 설정
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 40, left: 30, bottom: 10, right: 10) // 상하좌우 여백
+    }
+    
+}
 
 class CollectionTabController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     private var collectionView: UICollectionView!
@@ -21,50 +150,68 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
     private var imageArrowArray: [UIImageView] = []
     private var imageOptArray: [UIImageView] = []
     private var borderViewArray: [UIView] = []
+    private let parentCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .white
+        
+        return collectionView
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        view.addSubview(parentCollectionView)
+        parentCollectionView.dataSource = self
+        parentCollectionView.delegate = self
+        parentCollectionView.register(MyCollectionViewCell.self, forCellWithReuseIdentifier: MyCollectionViewCell.identifier)
+        
+        // 레이아웃 설정
+        NSLayoutConstraint.activate([
+            parentCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
+            parentCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
+            parentCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0),
+            parentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
         getDataFromDB()
-        collectionView.delegate = self
-        collectionView.dataSource = self
         setupViews()
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("뷰가 나타나기 직전입니다.")
+        //    getDataFromDB()
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("뷰가 나타난 직후입니다.")
+        //     getDataFromDB()
+    }
+  
     // db에서 먼저 가져와서 보여주기
     func getDataFromDB(){
         let collectionResults = self.realmDao.getAllCollection()
         
-        
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        layout.scrollDirection = .vertical
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        
-        collectionView.register(MyCollectionViewCell.self, forCellWithReuseIdentifier: "ParentCell")
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
         items = Array(collectionResults)
         isExpandedArray = Array(repeating: false, count: items.count)
         imageArrowArray = Array(repeating: UIImageView(image: UIImage(systemName: "arrow.up")), count: items.count)
         imageOptArray = Array(repeating: UIImageView(image: UIImage(systemName: "ellipsis")), count: items.count)
         borderViewArray = Array(repeating: UIView(), count: items.count)
-        collectionView.reloadData()
+        parentCollectionView.reloadData()
+        
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return items.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ParentCell", for: indexPath) as! MyCollectionViewCell
-   
-        cell.backgroundColor = .white
-        // 기존에 설정된 서브뷰 삭제
-        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyCollectionViewCell.identifier, for: indexPath) as! MyCollectionViewCell
+        
+        cell.backgroundColor = .brown
         cell.tag = indexPath.row
         
         let label = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 20))
@@ -117,11 +264,11 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         borderView.translatesAutoresizingMaskIntoConstraints = false
         borderView.backgroundColor = .black
         
-        cell.contentView.addSubview(label)
-        cell.contentView.addSubview(requestCount)
-        cell.contentView.addSubview(openImage)
-        cell.contentView.addSubview(optionImage)
-        cell.contentView.addSubview(borderView)
+        cell.addSubview(label)
+        cell.addSubview(requestCount)
+        cell.addSubview(openImage)
+        cell.addSubview(optionImage)
+        cell.addSubview(borderView)
         
         
         // Add Auto Layout constraints
@@ -154,14 +301,10 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
             borderView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
-        // 자식뷰 더하기
-        let requestItems = items[indexPath.item].requestList // subItems는 실제 데이터 배열이어야 함
-        let isExpanded = isExpandedArray[indexPath.item]
-        
-        cell.setRequestItems(Array(requestItems), isExpanded: isExpanded)
-    //    cell.subCollectionView.reloadData()
         return cell
     }
+    
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let requestItemsCount = items[indexPath.item].requestList.count
@@ -181,29 +324,61 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
     
     
     @objc func handleOpenImage(_ sender: UITapGestureRecognizer) {
+        print("click")
         guard let tappedImageView = sender.view as? UIImageView else { return }
-        guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        let requestItems = items[indexPath.item].requestList
-        // 해당 셀의 상태(isExpanded)를 전환
-        print("indexPath: \(indexPath.item) + clicked")
-        isExpandedArray[indexPath.item].toggle()
-        if isExpandedArray[indexPath.item] {
-            tappedImageView.image = UIImage(systemName: "arrow.down")
-            flag = true
-        } else {
-            tappedImageView.image = UIImage(systemName: "arrow.up")
-            flag = false
+        var cellSuperview: UIView? = tappedImageView
+        print("superview : \(cellSuperview) /// \(cellSuperview?.superview)")
+        while let superview = cellSuperview?.superview {
+            if let cell = superview as? MyCollectionViewCell {
+                
+                guard let indexPath = parentCollectionView.indexPath(for: cell) else { return }
+                // Toggle the expansion state
+                isExpandedArray[indexPath.item].toggle()
+                cell.shouldHideCells.toggle()
+                // Perform batch updates to animate the cell reloading
+                parentCollectionView.performBatchUpdates({
+                    parentCollectionView.reloadItems(at: [indexPath])
+                }, completion: { _ in
+                    print("Updated expansion state: \(self.isExpandedArray[indexPath.item])")
+                    cell.shouldHideCells = false
+                    cell.refreshSubItems(Array(self.items[indexPath.item].requestList))
+//                    if self.isExpandedArray[indexPath.item] {
+//                        tappedImageView.image = UIImage(systemName: "arrow.up")
+//                        cell.shouldHideCells = true
+//                        print("Item show: \(self.items[indexPath.item].requestList)")
+//                        //  cell.contentView.subviews.forEach { $0.removeFromSuperview() }  // 이 부분이 너무 어렵당... ㅠㅠ
+//                    } else {
+//                        tappedImageView.image = UIImage(systemName: "arrow.down")
+//                        cell.shouldHideCells = false
+//                        cell.refreshSubItems(Array(self.items[indexPath.item].requestList))
+//                    }
+                })
+            }
+            cellSuperview = superview
         }
+        //guard let tappedImageView = sender.view as? UIImageView else { return }
+        //guard let cell = tappedImageView.superview?.superview as? MyCollectionViewCell else { return }
+        //guard let indexPath = parentCollectionView.indexPath(for: cell) else { return }
+        //        let requestItems = items[indexPath.item].requestList
+        //        // 해당 셀의 상태(isExpanded)를 전환
+        //        print("indexPath: \(indexPath.item) + clicked")
+        //        isExpandedArray[indexPath.item].toggle()
+        //        if isExpandedArray[indexPath.item] {
+        //            tappedImageView.image = UIImage(systemName: "arrow.down")
+        //            cell.shouldHideCells = false
+        //            cell.refreshSubItems(Array(requestItems))
+        //        } else {
+        //            tappedImageView.image = UIImage(systemName: "arrow.up")
+        //            cell.shouldHideCells = false
+        //            cell.refreshSubItems(Array(requestItems))
+        //        }
         
         // 해당 셀만 다시 로드
-        collectionView.reloadItems(at: [indexPath])
+        //  parentCollectionView.reloadItems(at: [indexPath])
         
         // 레이아웃을 강제로 다시 계산
-        collectionView.collectionViewLayout.invalidateLayout()
-        print("requestItems: \(requestItems)")
-        cell.setRequestItems(Array(requestItems), isExpanded: isExpandedArray[indexPath.item])
-         
+        //parentCollectionView.collectionViewLayout.invalidateLayout()
+        
     }
     
     @objc func handleOptionImage(_ sender: UITapGestureRecognizer){
@@ -260,24 +435,17 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         addImage.addGestureRecognizer(tapGesture)
         
         
-        view.addSubview(collectionView)
-        
-        
-        
         NSLayoutConstraint.activate(
             [
+                addImage.heightAnchor.constraint(equalToConstant: 20),
                 addImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
                 addImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
                 label.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10), // safeArea 레이아웃 가이드의 상단 10포인트 띄우기
                 label.leadingAnchor.constraint(equalTo: addImage.trailingAnchor, constant: 20),
                 borderView.heightAnchor.constraint(equalToConstant: 1),
                 borderView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
-                borderView.topAnchor.constraint(equalTo: addImage.bottomAnchor, constant: 20),
-                borderView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0),
-                collectionView.topAnchor.constraint(equalTo: borderView.bottomAnchor, constant: 10),
-                collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
-                collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
-                collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
+                borderView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
+                borderView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0)
             ]
         )
     }
@@ -296,7 +464,10 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
             self.imageArrowArray.append(UIImageView(image: UIImage(systemName: "arrow.up")))
             self.imageOptArray.append(UIImageView(image: UIImage(systemName: "ellipsis")))
             self.borderViewArray.append(UIView())
-            self.collectionView.reloadData()
+            DispatchQueue.main.async {
+                self.parentCollectionView.reloadData()
+            
+            }
         })
     }
     
@@ -462,7 +633,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
                     print("inputText is nil")
                 }
                 
-                self.collectionView.reloadData()
+                self.parentCollectionView.reloadData()
             })
         }
         
@@ -478,9 +649,9 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
             let index = tappedView.tag
             showInputDoubleDialog(title: "요청값추가", message: "타입/제목 입력해주세요", inputPlaceholder: "제목입력", inputPlaceholder2: "타입입력", subTitle: "Add Request", actionHandler: { inputText1, inputText2 in
                 print("inputText: \(inputText1) / \(inputText2)")
-                if(inputText1.trimmingCharacters(in: .whitespacesAndNewlines) != "" && inputText2.trimmingCharacters(in: .whitespacesAndNewlines) != ""){                    
+                if(inputText1.trimmingCharacters(in: .whitespacesAndNewlines) != "" && inputText2.trimmingCharacters(in: .whitespacesAndNewlines) != ""){
                     self.appendRequest(title: inputText1, type: inputText2, index: index)
-                  
+                    
                 }
                 else {
                     self.showWarningPopup()
@@ -531,6 +702,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         print("id: \(requestData.id)")
         self.realmDao.insertReqToCollection(id: id, requestData:  requestData)
         
+        // testO
         // id로 갯수 뽑아와서 requestCount 수정하기
         self.realmDao.updateRequestCount(id: id)
         // 리스트 추가
@@ -539,7 +711,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
          */
         // 화면 재조회
         print("self Items Check : \(self.items)")
-        self.collectionView.reloadData()
+        self.parentCollectionView.reloadData()
     }
     
     func showWarningPopup() {

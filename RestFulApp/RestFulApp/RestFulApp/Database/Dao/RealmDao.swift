@@ -61,7 +61,7 @@ class RealmDao {
     // insertRequest
     func insertRequest(requestData: RequestModel){
         try! realm.write {
-            realm.add(requestData)
+            realm.add(requestData, update: .modified)
         }
     }
     
@@ -95,11 +95,13 @@ class RealmDao {
     }
     
     // 바로 apiController로 이동해서 REST api 조회한 경우 여기로 히스토리 관리
-    func insertHistoryBySend(history: HistoryModel){
+    func insertHistoryBySend(history: HistoryModel, request: RequestModel){
         try! realm.write {
-            realm.add(history)
+            history.requestList.append(request)
+            realm.add(history, update: .modified)
         }
     }
+    
     // Request를 통해 조회한 경우
     // 히스토리 화면에서 SAVE REQUEST로 진행할 경우, 위에 apiController를 통해 바로 들어온 경우 히스토리DB에만 있을거니까
     // 먼저 Collection 테이블에서 이름으로 먼저 컬렉션 찾고 넣어주기 + Request에도 추가해주기
@@ -116,7 +118,8 @@ class RealmDao {
                 prevHistory.params = history.params
                 prevHistory.headers = history.headers
                 prevHistory.body = history.body
-            } 
+                prevHistory.requestList = history.requestList // 현재 들어오는 requestList를 그전꺼에 넣어두고 업데이트하기
+            }
             // 그게 아니면 추가 (히스토리 DB에도 추가하고 Collection에도 히스토리 추가하기)
             // 이런 경우에는 컬렉션에 히스토리가 없는 상태이며, Request를 통해 api탭으로 이동한 상태입니다.
             // 조회를 할 경우 Collection ID를 받아갈 것이며, 이로 히스토리에 넣고(이건 앞서 Collection ID와 별개), 히스토리 DB에도 넣는다.
@@ -136,24 +139,29 @@ class RealmDao {
      */
     // RequestModel, CollectionModel.requestList 에 추가할 것
     func fetchCollectionByName(name: String) -> CollectionModel? {
-        return realm.objects(CollectionModel.self).filter("name == %@", name).first
+        return realm.objects(CollectionModel.self).filter("title == %@", name).first
     }
-    // 현재 히스토리와 리퀘스트 모두해서 컬렉션에 넣어주기
-    // 만약 컬렉션이 없다면 컬렉션까지 새로 만들어서 다 넣어주기
+    
+    // 컬렉션이 있으면 안에 내용을 바꾸고 history DB, Request DB 수정하기
+    // 없으면 historyDB, rquestDB에만 추가하기
+    // 나중에 request로 추가할 때 이름으로 먼저 찾고 있으면 요청 테이블에 historyDB 내용 추가하기
+    //
     func insertHistoryToCollection(history: HistoryModel, request: RequestModel, name: String){
         if let collection = fetchCollectionByName(name: name) {
-            collection.historyList.append(history)
-            collection.requestList.append(request)
+            // history의 requestList에도 넣어줘야함
+            try! realm.write {
+                collection.historyList.append(history)
+                collection.requestList.append(request)
+                self.insertHistoryBySend(history: history, request: request)
+                self.insertRequest(requestData: request)
+            }
         }
+        // 컬렉션이 없는 경우엔 히스토리만 추가하기
+        // 나중에 리퀘스트랑 매핑할 땐 이름가지고 리퀘스트 타이틀에서 찾고 거기다가 Update로 넣어준다거나
+        // 리퀘스트가 TB에 없는 경우라면 Request 추가한 다음에 거기에 넣어주고, Collection도 같이 만들어서 넣어주기
         else {
-            // collection 추가하기
-            let collection2 = CollectionModel()
-            collection2.title = name
-            collection2.requestCount = 0
-            collection2.requestList.append(request)
-            collection2.historyList.append(history)
-            self.insertCollection(collection2)
-            
+            self.insertHistoryBySend(history: history, request: request)
+            self.insertRequest(requestData: request)
         }
     }
     
@@ -163,6 +171,9 @@ class RealmDao {
      */
     func getHistoryByOrdersInDate() -> Results<HistoryModel> {
         let sortedHistoryItem = realm.objects(HistoryModel.self).sorted(byKeyPath: "date", ascending: false) // 내림차순 구현
+        let historyItem = realm.objects(HistoryModel.self)
+        print("historyItem : \(historyItem)")
+        print("history :\(sortedHistoryItem)")
         return sortedHistoryItem
     }
     

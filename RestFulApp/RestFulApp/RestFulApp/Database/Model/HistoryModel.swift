@@ -18,6 +18,7 @@ class HistoryModel: Object {
     @Persisted var params = List<ParamsObject>()
     @Persisted var headers = List<ParamsObject>()
     @Persisted var body: String
+    @Persisted var requestList = List<RequestModel>()
 }
 
 class ParamsObject: Object {

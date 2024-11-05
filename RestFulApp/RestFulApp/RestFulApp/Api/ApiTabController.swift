@@ -20,7 +20,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     let responseTextView = UITextView()
     var buttonArray : [UIButton] = [] // Params, Headers, Body 버튼 넣어두는 배열
     let reqBodyNote = UITextView()  // reqBody
-    
+    let realmDao = RealmDao()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -176,6 +176,48 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         }
     }
     
+    func saveApiCallData(apiUrl: String, methodType: String, params: [String: Any]) {
+        let type = methodType
+        let title = titleLabel.text ?? "테스트입니다."
+        let url = apiUrl
+    
+        let requestModel = RequestModel()
+        requestModel.title = title
+        requestModel.type = type
+        requestModel.url = url
+        
+        
+        // Request 테이블에 넣어주기
+        self.realmDao.insertRequest(requestData: requestModel)
+        // Collection 테이블을 통해 Request로 접근해서 찾아온 것이라면, 해당 id값을 토대로 컬렉션을 찾은 다음 그곳에 Request 테이블 수정하기
+        
+        // History 테이블에 넣어주기
+        /*
+         @Persisted(primaryKey: true) var id: ObjectId
+         @Persisted var type: String
+         @Persisted var title: String
+         @Persisted var url: String
+         @Persisted var date: Date
+         @Persisted var params = List<ParamsObject>()
+         @Persisted var headers = List<ParamsObject>()
+         @Persisted var body: String
+         @Persisted var requestList = List<RequestModel>()
+         */
+        let historyModel = HistoryModel()
+        historyModel.type = type
+        historyModel.title = "테스트입니다."
+        historyModel.url = "http://54.180.121.243:2721/api/get"
+        let today = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
+        let formattedDate = dateFormatter.string(from: today)
+        historyModel.date = today
+        
+        print("requestModel : \(requestModel)")
+        // Colleciton 테이블을 통해 Request로 접근해서 찾아온 것이라면, 해당 Id를 토대로 컬렉션의 History 테이블(리스트) 수정하기
+        self.realmDao.insertHistoryToCollection(history: historyModel, request: requestModel, name: "date: \(today)")
+    }
+    
     // params
     func apiCallByParams(){
         var params: [String: Any] = [:]
@@ -186,8 +228,11 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         }
         print("Params : \(params)")
         // var apiUrl = textField.text ?? "" // 입력 Url
-        var apiUrl = "http://13.125.207.44:2721/api/get"
+        var apiUrl = "http://54.180.121.243:2721/api/get"
         let methodType = self.methodLabel
+        print("apiUrl: \(apiUrl) methodType: \(methodType)")
+        saveApiCallData(apiUrl: apiUrl, methodType: methodType.text ?? "GET", params: params)
+        
         if methodType.text == "GET" {
             print("GET 테스트")
             AF.request(apiUrl, method: .get).response { response in
