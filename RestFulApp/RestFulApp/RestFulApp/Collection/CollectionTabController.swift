@@ -10,10 +10,36 @@ import UIKit
 import SwiftUI
 import RxSwift
 import RealmSwift
- 
+import ObjectiveC
+
+private var objectIdKey: UInt8 = 0 // 키를 위한 고유한 변수
+private var indexKey: UInt8 = 0 // 연관된 키
+extension UITapGestureRecognizer {
+    var objectId: ObjectId? {
+        get {
+            return objc_getAssociatedObject(self, &objectIdKey) as? ObjectId
+        }
+        set {
+            objc_setAssociatedObject(self, &objectIdKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    var index: Int? {
+        get {
+            return objc_getAssociatedObject(self, &indexKey) as? Int
+        }
+        set {
+            objc_setAssociatedObject(self, &indexKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+}
+
 class MyCollectionViewCell: UICollectionViewCell {
     static let identifier = "ParentCell"
     var subItems : [RequestModel] = []
+    var isExpanded = false
+    private var realmDao = RealmDao()
+    
+    
     var shouldHideCells: Bool = true // 셀 숨김 여부를 결정하는 변수
     // Child CollectionView 생성
     let childCollectionView: UICollectionView = {
@@ -51,19 +77,35 @@ class MyCollectionViewCell: UICollectionViewCell {
     
     
     // func refreshSubItem
-    func refreshSubItems(_ items: Array<RequestModel>){
-        subItems = items
-        print("items2323: \(items)")
-        childCollectionView.reloadData() // 변경 사항 반영
+    func refreshSubItems(_ items: Array<RequestModel>, shouldHide: Bool){
+        
+        print("shouldHide: \(shouldHide)")
+        if shouldHide {
+            self.childCollectionView.isHidden = true
+          //  self.childCollectionView.reloadData()
+        } else {
+            self.childCollectionView.isHidden = false
+            print("items ::::: \(items)")
+            self.subItems = items
+            self.childCollectionView.reloadData()
+        }
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        // 필요한 초기화 작업 수행
-        // 예: childCollectionView 데이터 초기화
+        // 확장 상태 초기화
+        isExpanded = false
+       // childCollectionView.isHidden = true // 숨김 상태로 초기화
+      //  subItems = [] // 데이터 초기화
+      //  childCollectionView.reloadData() // 서브 컬렉션 뷰 데이터 리로드
+    }
+    
+    func configure(with items: [RequestModel], expanded: Bool) {
+        self.subItems = items
+        self.isExpanded = expanded
+        childCollectionView.isHidden = !expanded
         childCollectionView.reloadData()
     }
-
 }
 
 extension MyCollectionViewCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -88,6 +130,14 @@ extension MyCollectionViewCell: UICollectionViewDelegate, UICollectionViewDataSo
         let optionImage = UIImageView(image: UIImage(systemName: "ellipsis"))
         optionImage.translatesAutoresizingMaskIntoConstraints = false
         optionImage.isUserInteractionEnabled = true
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(childDataClicked(_:)))
+        optionImage.addGestureRecognizer(tapGesture) // 이름변경, 삭제 기능 추가 > Request DB에서도 삭제하고 Collection에서도 리스트 삭제
+        
+        let objectId = subItems[indexPath.item].id
+        tapGesture.objectId = objectId
+        optionImage.tag = indexPath.item // delete 할 때 사용할 예정
+        
         let borderView = UIView()
         borderView.translatesAutoresizingMaskIntoConstraints = false
         borderView.backgroundColor = .black
@@ -113,14 +163,181 @@ extension MyCollectionViewCell: UICollectionViewDelegate, UICollectionViewDataSo
         
         cell.isHidden = shouldHideCells
         
-        
         return cell
     }
+    
+    @objc func childDataClicked(_ sender: UITapGestureRecognizer){
+        print("clicked!! \(sender.description)")
+        
+        guard let objectId = sender.objectId else {
+            print("ObjectID not found")
+            return
+        }
+        
+        guard let optionImageTag = sender.view?.tag else {
+            print("No TAG Item")
+            return
+        }
+        
+        print("optionImageTAG: \(optionImageTag)")
+        print("objectId : \(objectId)")
+        childDataModified(title: "REQUEST 변경", message: "", objectID: objectId, index: optionImageTag)
+    }
+    
+    func childDataModified(title: String?, message: String?, objectID: ObjectId?, index: Int?){
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let renameLabel2 = UILabel(frame: CGRect(x: 0, y: 0, width: 250, height: 30))
+        renameLabel2.translatesAutoresizingMaskIntoConstraints = false
+        renameLabel2.isUserInteractionEnabled = true
+        renameLabel2.text = "RENAME"
+        let deleteLabel2 = UILabel(frame: CGRect(x: 35, y: 0, width: 250, height: 30))
+        deleteLabel2.translatesAutoresizingMaskIntoConstraints = false
+        deleteLabel2.isUserInteractionEnabled = true
+        deleteLabel2.text = "DELETE"
+        alertController.view.addSubview(renameLabel2)
+        alertController.view.addSubview(deleteLabel2)
+        
+        let renameTapped2 = UITapGestureRecognizer(target: self, action: #selector(handleTap4(_ :)))
+        let deleteTapped2 = UITapGestureRecognizer(target: self, action: #selector(handleTap5(_ :)))
+        renameTapped2.objectId = objectID // Request Primary Key send
+        deleteTapped2.objectId = objectID // Request Primary Key send
+        deleteTapped2.index = index // 현재 인덱스를 같이 넘겨서 UI상에서 제거하기 위함
+        renameLabel2.addGestureRecognizer(renameTapped2)
+        deleteLabel2.addGestureRecognizer(deleteTapped2)
+        
+        
+        let borderView = UIView()
+        borderView.translatesAutoresizingMaskIntoConstraints = false
+        borderView.backgroundColor = .black
+        let heightConstraint = NSLayoutConstraint(item: alertController.view!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 200)
+        
+        alertController.view.addConstraint(heightConstraint)
+        alertController.view.addSubview(renameLabel2)
+        alertController.view.addSubview(borderView)
+        alertController.view.addSubview(deleteLabel2)
+        
+        NSLayoutConstraint.activate([
+            renameLabel2.heightAnchor.constraint(equalToConstant: 30),
+            renameLabel2.leadingAnchor.constraint(equalTo: alertController.view.leadingAnchor, constant: 20),
+            renameLabel2.topAnchor.constraint(equalTo: alertController.view.topAnchor, constant: 60),
+            renameLabel2.trailingAnchor.constraint(equalTo: alertController.view.trailingAnchor, constant: -20),
+            
+            borderView.heightAnchor.constraint(equalToConstant: 1),
+            borderView.topAnchor.constraint(equalTo: renameLabel2.bottomAnchor, constant: 10),
+            borderView.leadingAnchor.constraint(equalTo: alertController.view.leadingAnchor, constant: 20),
+            borderView.trailingAnchor.constraint(equalTo: alertController.view.trailingAnchor, constant: -20),
+            
+            deleteLabel2.heightAnchor.constraint(equalToConstant: 30),
+            deleteLabel2.topAnchor.constraint(equalTo: borderView.bottomAnchor, constant: 20),
+            deleteLabel2.leadingAnchor.constraint(equalTo: alertController.view.leadingAnchor, constant: 20),
+            deleteLabel2.trailingAnchor.constraint(equalTo: alertController.view.trailingAnchor, constant: -20),
+            
+        ])
+        
+        
+       
+        let cancelAction = UIAlertAction(title: "CANCEL", style: .cancel)
+        alertController.addAction(cancelAction)
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.present(alertController, animated: true, completion: nil)
+        }
+    }
+    // textField 1개
+    func showInputDialog(title: String?, message: String?, inputPlaceholder: String?, subTitle: String?, actionHandler: @escaping (String?) -> Void){
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addTextField { textField in
+            textField.placeholder = inputPlaceholder
+            textField.keyboardType = .default
+        }
+        
+        let cancelAction = UIAlertAction(title: "CANCEL", style: .cancel, handler: {_ in print("Cancel")})
+        alertController.addAction(cancelAction)
+        let action = UIAlertAction(title: subTitle, style: .default) { _ in
+            let textField = alertController.textFields?.first
+            actionHandler(textField?.text)
+        }
+        alertController.addAction(action)
+        
+        // 대화상자 화면에 표시
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    
+    // Collection 이름 변경
+    @objc func handleTap4(_ sender: UITapGestureRecognizer){
+        print("rename clicked")
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.dismiss(animated: true)
+        }
+        print("realm 위치: ", Realm.Configuration.defaultConfiguration.fileURL!)
+        
+        guard let objectId = sender.objectId else {
+            print("ObjectID not found")
+            return
+        }
+        
+        // objectId를 기준으로 Request에 내용 변경
+        showInputDialog(title: "Rename Collection", message: "변경할 이름 입력", inputPlaceholder: "rename collection", subTitle: "Confirm", actionHandler: { inputText in
+            let id = objectId
+            if let unwrappedInputText = inputText {
+                print("변경 아이디 : \(id) 변경 이름: \(unwrappedInputText)")
+                self.realmDao.renameRequestInCollection(rId: id, newTitle: unwrappedInputText)
+            } else {
+                print("inputText is nil")
+            }
+            
+            self.childCollectionView.reloadData()
+        })
+    }
+    
+    // Collection 삭제
+    @objc func handleTap5(_ sender: UITapGestureRecognizer){
+        print("delete clicked")
+        guard let objectId = sender.objectId else {
+            print("ObjectID not found")
+            return
+        }
+        // Request Table에서 지우고, Collection에서도 지우기
+        self.realmDao.deleteRequest(rId:  objectId)
+        self.realmDao.deleteRequesetFromCollection(rId: objectId)
+        // 데이터 모델에서 해당 아이템 제거
+        guard let index = sender.index else {
+            print("no index")
+            return
+        }
+        
+        self.subItems.remove(at: index)
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.dismiss(animated: true)
+        }
+        self.childCollectionView.reloadData()
+        
+        // NotificationCenter에 알림 게시
+        NotificationCenter.default.post(name: Notification.Name("ChildDataUpdated"), object: nil)
+    }
+    
+    func showWarningPopup() {
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.dismiss(animated: true)
+        }
+        let alertController = UIAlertController(title: "경고", message: "필수정보를 입력해주세요", preferredStyle: .alert)
+        // OK 버튼 추가
+        let okAction = UIAlertAction(title: "확인", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        
+        // 팝업 표시
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    
     // 레이아웃 크기 설정
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let requestItemsCount = subItems.count
         let baseHeight: CGFloat = 20 // Parent content 높이
-        print("shouldHideCells23232323 : \(shouldHideCells)")
         // flag가 true일 경우, 자식 아이템의 높이를 포함한 크기
         if !shouldHideCells {
             let additionalHeight = CGFloat(requestItemsCount * 20) // 각 자식 아이템당 60의 높이
@@ -159,6 +376,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         
         return collectionView
     }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -179,8 +397,19 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         getDataFromDB()
         setupViews()
         
+        NotificationCenter.default.addObserver(self, selector: #selector(updateParentCollectionView), name: Notification.Name("ChildDataUpdated"), object: nil)
     }
     
+    @objc func updateParentCollectionView() {
+        print("deleteData and reloadData")
+        parentCollectionView.reloadData()
+        self.realmDao.modifyReqCountInCollection()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("ChildDataUpdated"), object: nil)
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("뷰가 나타나기 직전입니다.")
@@ -202,7 +431,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         imageOptArray = Array(repeating: UIImageView(image: UIImage(systemName: "ellipsis")), count: items.count)
         borderViewArray = Array(repeating: UIView(), count: items.count)
         parentCollectionView.reloadData()
-        
+        self.realmDao.modifyReqCountInCollection()
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return items.count
@@ -211,7 +440,7 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyCollectionViewCell.identifier, for: indexPath) as! MyCollectionViewCell
         
-        cell.backgroundColor = .brown
+        cell.backgroundColor = .white
         cell.tag = indexPath.row
         
         let label = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 20))
@@ -264,11 +493,11 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
         borderView.translatesAutoresizingMaskIntoConstraints = false
         borderView.backgroundColor = .black
         
-        cell.addSubview(label)
-        cell.addSubview(requestCount)
-        cell.addSubview(openImage)
-        cell.addSubview(optionImage)
-        cell.addSubview(borderView)
+        cell.contentView.addSubview(label)
+        cell.contentView.addSubview(requestCount)
+        cell.contentView.addSubview(openImage)
+        cell.contentView.addSubview(optionImage)
+        cell.contentView.addSubview(borderView)
         
         
         // Add Auto Layout constraints
@@ -339,20 +568,14 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
                 parentCollectionView.performBatchUpdates({
                     parentCollectionView.reloadItems(at: [indexPath])
                 }, completion: { _ in
-                    print("Updated expansion state: \(self.isExpandedArray[indexPath.item])")
-                    cell.shouldHideCells = false
-                    cell.refreshSubItems(Array(self.items[indexPath.item].requestList))
-//                    if self.isExpandedArray[indexPath.item] {
-//                        tappedImageView.image = UIImage(systemName: "arrow.up")
-//                        cell.shouldHideCells = true
-//                        print("Item show: \(self.items[indexPath.item].requestList)")
-//                        //  cell.contentView.subviews.forEach { $0.removeFromSuperview() }  // 이 부분이 너무 어렵당... ㅠㅠ
-//                    } else {
-//                        tappedImageView.image = UIImage(systemName: "arrow.down")
-//                        cell.shouldHideCells = false
-//                        cell.refreshSubItems(Array(self.items[indexPath.item].requestList))
-//                    }
+                    print("Updated expansion state: \(self.isExpandedArray[indexPath.item]) \(cell.shouldHideCells)")
+                    // Refresh the sub items based on the expansion state
+                    cell.refreshSubItems(Array(self.items[indexPath.item].requestList), shouldHide: cell.shouldHideCells)
+                    //cell.configure(with: Array(self.items[indexPath.item].requestList), expanded: self.isExpandedArray[indexPath.item])
+                    // Update arrow image based on expanded state
+                    tappedImageView.image = UIImage(systemName: self.isExpandedArray[indexPath.item] ? "arrow.up" : "arrow.down")
                 })
+                break
             }
             cellSuperview = superview
         }
@@ -567,6 +790,8 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
             topController.present(alertController, animated: true, completion: nil)
         }
     }
+    
+  
     
     // textField 1개
     func showInputDialog(title: String?, message: String?, inputPlaceholder: String?, subTitle: String?, actionHandler: @escaping (String?) -> Void){

@@ -49,6 +49,47 @@ class RealmDao {
             }
         }
     }
+    
+    // rename Request in Collection
+    func renameRequestInCollection(rId: ObjectId, newTitle: String){
+        
+        // rId에 따른 변경
+        if let request = getRequestById(id: rId) {
+            try! realm.write {
+                request.title = newTitle
+                print("변경 타이틀 : \(request.title)")
+            }
+        }
+        let collection = findCollectionByRequestId(rId: rId)
+        let cId = collection.id
+        print("collection: \(collection) and id : \(cId)")
+        // Collection 안에 request 타이틀도 변경
+        getRequestFromCollection(cId: cId, rId: rId, newTitle: newTitle)
+    }
+    // findCollectionByRequestId
+    func findCollectionByRequestId(rId: ObjectId) -> CollectionModel{
+        let collectionModel = getAllCollection()
+        var findCollection = CollectionModel()
+        for collection in collectionModel {
+            if let request = collection.requestList.first(where: {$0.id == rId}) {
+                print("request : \(request.id) \(request.title)")
+                findCollection = collection
+                break
+            }
+        }
+        return findCollection
+    }
+    
+    func getRequestFromCollection(cId: ObjectId, rId: ObjectId, newTitle: String) {
+        if let collection = getCollection(byId: cId) {
+            if let request = collection.requestList.first(where:{ $0.id == rId }) {
+                try! realm.write {
+                    request.title = newTitle // collection으로 먼저 찾고 그 안에 Request 찾고 id 비교 후 수정 작업
+                }
+            }
+        }
+    }
+    
     // request --> collection
     func insertReqToCollection(id: ObjectId, requestData: RequestModel){
         if let collection = getCollection(byId: id) {
@@ -86,12 +127,28 @@ class RealmDao {
         }
     }
     // remove Request
-    func removeRequest(id: ObjectId){
-        if let requestItem = getRequestById(id: id) {
+    func deleteRequest(rId: ObjectId){
+        if let requestItem = getRequestById(id: rId) {
             try! realm.write {
                 realm.delete(requestItem)
             }
         }
+    }
+    
+    // remove request from collection -> CollectoinModel 반환 후 이걸가지고 update하기 
+    func deleteRequesetFromCollection(rId: ObjectId){
+        let collectionModel = getAllCollection()
+        var findCollection = CollectionModel()
+        for collection in collectionModel {
+            if let requestIndex = collection.requestList.firstIndex(where: {$0.id == rId}) {
+                findCollection = collection
+                // 위치에 있는 request 제거
+                findCollection.requestList.remove(at: requestIndex)
+                break
+            }
+        }
+        // update requestCount
+        //self.updateRequestCount(id: findCollection.id)
     }
     
     // 바로 apiController로 이동해서 REST api 조회한 경우 여기로 히스토리 관리
@@ -99,6 +156,16 @@ class RealmDao {
         try! realm.write {
             history.requestList.append(request)
             realm.add(history, update: .modified)
+        }
+    }
+    
+    // Collection에 대한 모든값들을 가지고와서 requestCount 수정하기
+    func modifyReqCountInCollection(){
+        let collectionModel = getAllCollection()
+        try! realm.write {
+            for collection in collectionModel {
+                collection.requestCount = collection.requestList.count
+            }
         }
     }
     

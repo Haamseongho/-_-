@@ -216,8 +216,26 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
     
     @objc func clearAllHistory(_ sender: UITapGestureRecognizer) {
         print("drop table")
-        realmDao.dropHistoryTable()
-        //    collectionView.reloadData()
+        
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.dismiss(animated: true)
+        }
+        let alertController = UIAlertController(title: "히스토리 삭제", message: "호출된 모든 정보를 삭제하시겠습니까?", preferredStyle: .alert)
+        // OK 버튼 추가
+        let okAction = UIAlertAction(title: "확인", style: .default) { _ in
+            print("OK Action")
+            self.realmDao.dropHistoryTable()
+            self.loadData()
+        }
+        alertController.addAction(okAction)
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        // 팝업 표시
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.present(alertController, animated: true, completion: nil)
+        }
+
     }
     
     
@@ -228,6 +246,7 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ParentCollectionViewCell.identifier, for: indexPath) as! ParentCollectionViewCell
         // cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+
         let arrowImage1 = UIImageView()
         let dateLabel = UILabel()
         print("에러체크 :\(items[indexPath.item].date )")
@@ -291,6 +310,8 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
                 // Perform batch updates to animate the cell reloading
                 parentCollectionView.performBatchUpdates({
                     parentCollectionView.reloadItems(at: [indexPath])
+                  //  parentCollectionView.deleteItems(at: [IndexPath(item: indexPath.item, section: 0)])
+                  //  parentCollectionView.reloadItems(at: [indexPath])
                 }, completion: { _ in
                     print("찬반 : \(self.isExpandedArray[indexPath.item])")
                     if self.isExpandedArray[indexPath.item] {
@@ -299,6 +320,7 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
                     } else {
                         cell.shouldHideCells = false
                         cell.refreshSubItems(Array(self.items[indexPath.item].requestList))
+                        self.parentCollectionView.reloadData()
                     }
                 })
             }
