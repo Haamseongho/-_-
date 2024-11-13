@@ -153,8 +153,17 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     
     @objc func sendButtonClicked() {
         print("sendButtonClicked")
+        // 클릭하면 자동으로 Body2에 선택되도록 구현
+        buttonArray.forEach { button in
+            if button.currentTitle == "Body2" {
+                button.backgroundColor = .systemTeal
+            } else {
+                button.backgroundColor = .white
+            }
+        }
         for(key, value, checked) in data {
             print("Key : \(key) Value : \(value) Checked : \(checked)")
+            
         }
         
         // Body
@@ -260,7 +269,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                     if let httpResponse = response.response {
                         self.responseHeader = httpResponse.allHeaderFields  // header뽑기
                         print("headers: \(self.responseHeader)")
-                        
+                        self.cookieString = ""// 쿠키 초기화
                         if let url = httpResponse.url {
                             if let cookies = HTTPCookieStorage.shared.cookies(for: url){
                                 for cookie in cookies {
@@ -305,7 +314,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                     if let httpResponse = response.response {
                         self.responseHeader = httpResponse.allHeaderFields  // header뽑기
                         print("headers: \(self.responseHeader)")
-                        
+                        self.cookieString = ""// 쿠키 초기화
                         if let url = httpResponse.url {
                             if let cookies = HTTPCookieStorage.shared.cookies(for: url){
                                 for cookie in cookies {
@@ -380,7 +389,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                     if let httpResponse = response.response {
                         self.responseHeader = httpResponse.allHeaderFields  // header뽑기
                         print("headers: \(self.responseHeader)")
-                        
+                        self.cookieString = ""// 쿠키 초기화
                         if let url = httpResponse.url {
                             if let cookies = HTTPCookieStorage.shared.cookies(for: url){
                                 for cookie in cookies {
@@ -420,7 +429,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                     if let httpResponse = response.response {
                         self.responseHeader = httpResponse.allHeaderFields  // header뽑기
                         print("headers: \(self.responseHeader)")
-                        
+                        self.cookieString = ""// 쿠키 초기화
                         if let url = httpResponse.url {
                             if let cookies = HTTPCookieStorage.shared.cookies(for: url){
                                 for cookie in cookies {
@@ -472,49 +481,14 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             return
         }
         
-        print("JSONDATA: \(jsonData)")
-        let jsonData2 = """
-        {
-          "Scrno": "",
-          "Task": {
-            "bzwkCmnDvsn": "",
-            "brnCd": "",
-            "bzwkGroupCd": ""
-          },
-          "inItem": {
-            "prdctSbjctCd1": "",
-            "bbrnCd": "",
-            "joinWay": "",
-            "serchCndn": "",
-            "serchCtnt": "",
-            "dmndPageCnt": "1",
-            "screnDsplCnt": "100",
-            "groupCoCd": "",
-            "operGroupCd": "",
-            "boPrdctPtrnCd": "02",
-            "boPrdctSbjectcd": "",
-            "wwwJoinYn": "",
-            "dsplYn": "",
-            "acnDstic": "01",
-            "langDstic": "KOR",
-            "ovsesPpsnCoptDstic": ""
-          }
-        }
-        """
-        
-        guard let jsonData3 = jsonData2.data(using: .utf8) else {
-            return
-        }
-        
         // Replace newlines properly and remove unnecessary spaces
         //reqBody = reqBody.replacingOccurrences(of: "\n", with: "")
         //reqBody = reqBody.replacingOccurrences(of: " ", with: "")
         //reqBody = reqBody.replacingOccurrences(of: "{", with: "[")
         //reqBody = reqBody.replacingOccurrences(of: "}", with: "]")
         // 보낼 JSON 데이터 생성
-        print("jsonData3 : \(jsonData3)")
         do {
-            let jsonObject = try JSONSerialization.jsonObject(with: jsonData3, options: [])
+            let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: [])
             print("Parsed JSON object: \(jsonObject)")
             let apiUrl = textField.text ?? "" // 입력 Url
             var methodType = self.methodLabel
@@ -533,12 +507,12 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                 case .success(let data):
                     if let data = data {
                         do {
+                            print("JSON Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
                             if let jsonString = String(data: data, encoding: .utf8) {
                                 let returnString = self.formatJson(jsonString: jsonString)
                                 self.responseTextView.text = returnString
                                 self.responseJsonString = returnString
-                                print("returnStringData : \(self.responseJsonString)")
-                                if let jsonData = jsonString.data(using: .utf8) {
+                                if let jsonData2 = jsonString.data(using: .utf8) {
                                     if let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
                                         print("JSON 응답 데이터: \(jsonObject)")
                                     }
@@ -552,12 +526,11 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
                     if let httpResponse = response.response {
                         self.responseHeader = httpResponse.allHeaderFields  // header뽑기
                         print("headers: \(self.responseHeader)")
-                        
+                        self.cookieString = ""// 쿠키 초기화
                         if let url = httpResponse.url {
                             if let cookies = HTTPCookieStorage.shared.cookies(for: url){
                                 for cookie in cookies {
                                     self.cookieString += "\(cookie)"
-                                    print("Cookies: \(cookie)")
                                 }
                             } else {
                                 print("No Cookies found")
@@ -677,6 +650,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     
     // 응답에서 해더 가져오기
     func getHeadersFromResponse(){
+        
         var resHeaderString = ""
         for (key, value) in self.responseHeader {
             resHeaderString += "\(key): \(value)\n"
@@ -749,8 +723,9 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         
         responseTextView.layer.borderColor = UIColor.lightGray.cgColor
         responseTextView.translatesAutoresizingMaskIntoConstraints = false
-        responseTextView.isUserInteractionEnabled = false
-        responseTextView.isScrollEnabled = true
+        responseTextView.isUserInteractionEnabled = true  // 사용자 상호작용 활성화
+        responseTextView.isScrollEnabled = true // 스크롤 가능
+        responseTextView.isEditable = false // 수정 불가능
         responseTextView.contentInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
       //  view.addSubview(responseTextView)
         
@@ -792,10 +767,11 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         // 응답값 스크롤
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(scrollView)
+        scrollView.showsVerticalScrollIndicator = true
         
-        scrollView.addSubview(responseTextView)
-        
+        view.addSubview(responseTextView)
+        responseTextView.layoutIfNeeded()
+    
         NSLayoutConstraint.activate([
             // responseLabel Constraints
             responseLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
@@ -815,16 +791,11 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             responseTabStackView.heightAnchor.constraint(equalToConstant: 50),
             
             // NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: responseTabStackView.bottomAnchor, constant: 10),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -5),
+            responseTextView.topAnchor.constraint(equalTo: responseTabStackView.bottomAnchor, constant: 10),
+            responseTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            responseTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            responseTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -5),
             
-            // responseTextView Constraints
-            responseTextView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            responseTextView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            responseTextView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            responseTextView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -10)
 
         ])
     }
