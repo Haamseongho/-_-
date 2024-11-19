@@ -51,11 +51,18 @@ class ParentCollectionViewCell: UICollectionViewCell {
     
     
     // func refreshSubItem
-    func refreshSubItems(_ items: Array<RequestModel>){
-        
-        // items.append(reqModel)
-        subItems = items
-        childCollectionView.reloadData() // 변경 사항 반영
+    func refreshSubItems(_ items: Array<RequestModel>, shouldHideCells: Bool){
+        print("shouldHide: \(shouldHideCells)")
+    
+        if shouldHideCells {
+            self.childCollectionView.isHidden = true
+          //  self.childCollectionView.reloadData()
+        } else {
+            self.childCollectionView.isHidden = false
+            print("items ::::: \(items)")
+            self.subItems = items
+            self.childCollectionView.reloadData()
+        }
     }
 }
 
@@ -314,12 +321,13 @@ class HistoryViewController: UIViewController, UICollectionViewDataSource, UICol
                   //  parentCollectionView.reloadItems(at: [indexPath])
                 }, completion: { _ in
                     print("찬반 : \(self.isExpandedArray[indexPath.item])")
+                    tappedImageView.image = UIImage(systemName: self.isExpandedArray[indexPath.item] ? "arrow.up" : "arrow.down")
                     if self.isExpandedArray[indexPath.item] {
                         cell.shouldHideCells = true
                       //  cell.contentView.subviews.forEach { $0.removeFromSuperview() }  // 이 부분이 너무 어렵당... ㅠㅠ 
                     } else {
                         cell.shouldHideCells = false
-                        cell.refreshSubItems(Array(self.items[indexPath.item].requestList))
+                        cell.refreshSubItems(Array(self.items[indexPath.item].requestList), shouldHideCells: cell.shouldHideCells)
                         self.parentCollectionView.reloadData()
                     }
                 })

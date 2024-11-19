@@ -4,7 +4,42 @@ import DropDown
 import Alamofire
 import Combine
 
-class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
+class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    var historyItems: [ReqBodyModel] = []
+    
+    
+    // 히스토리 꺼내기 위함
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return historyItems.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
+        cell.backgroundColor = .systemBlue
+        let label = UILabel()
+        label.text = historyItems[indexPath.item].title
+        label.textColor = .white
+        label.textAlignment = .center
+        label.frame = cell.contentView.bounds
+        cell.contentView.addSubview(label)
+        return cell
+        
+    }
+    // MARK: - UICollectionView Delegate
+     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+         self.dismiss(animated: true) {
+             // 선택된 항목에 따라 다른 이벤트 실행
+             let selectedItem = self.historyItems[indexPath.item]
+             print("You selected: \(selectedItem)")
+             
+             self.reqBodyNote.text = selectedItem.body
+             self.textField.text = selectedItem.url
+             self.methodLabel.text = selectedItem.type
+             self.tabIndex = 2
+             self.requestBodyInfo()
+         }
+     }
     
     // var pickerView = UIPickerView()
     var methodTypeData = ["GET", "POST"]
@@ -15,7 +50,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     let button = UIButton(type: .system)
     var methodLabel = UILabel()
     let titleField = UITextField()
-    let textField = UITextField()
+    let textField = UITextField() // Enter Url
     var tabIndex = 0 // 0, 1 = Param, Header, 2 = Body
     var tabIndex2 = 0 // 0: Body, 1: Cookies, 2: Headers (for response)
     var responseTextView = UITextView()
@@ -39,6 +74,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         return view
     }()
     var cookieString: String = ""
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,6 +103,11 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     }
     
     func setupURLInput() {
+        
+        // reqBody 히스토리
+        let reqResults = self.realmDao.getRequestBodyInfo()
+        historyItems  = Array(reqResults) // 리스트 넣어놓기
+        
         methodLabel.text = "GET"
         methodLabel.textAlignment = .center
         methodLabel.backgroundColor = .lightGray
@@ -102,7 +143,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             print("Selected item: \(item) at index: \(index)")
             self?.methodLabel.text = item
         }
-       
+        
         textField.attributedPlaceholder = NSAttributedString(string: "Enter URL",
                                                              attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray]
         )
@@ -151,6 +192,30 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         sendButton.addGestureRecognizer(sendButtonTapped)
     }
     
+    func saveRequestBodyInfo(){
+        let reqBodyModel = ReqBodyModel()
+        if let url = self.textField.text {
+            reqBodyModel.url = url
+        }
+        
+        if let body = self.reqBodyNote.text {
+            reqBodyModel.body = body
+        }
+        
+        let currentDate = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let formattedDate = dateFormatter.string(from: currentDate)
+        
+        reqBodyModel.title = formattedDate // 시간 넣어주기(title)
+        if let type = self.methodLabel.text {
+            reqBodyModel.type = type
+        }
+        
+        self.realmDao.insertReqBodyInfo(reqBodyModel)
+        self.historyItems.append(reqBodyModel)
+    }
+    
     @objc func sendButtonClicked() {
         print("sendButtonClicked")
         // 클릭하면 자동으로 Body2에 선택되도록 구현
@@ -163,8 +228,11 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         }
         for(key, value, checked) in data {
             print("Key : \(key) Value : \(value) Checked : \(checked)")
-            
         }
+        
+        saveRequestBodyInfo()
+        // save Data
+        
         
         // Body
         if tabIndex == 2 {
@@ -474,7 +542,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         print("Header : \(headers)")
         // Fetch the input string from reqBodyNote and clean it
         var reqBody = reqBodyNote.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        
+        print("reqBody ::: \(reqBody)")
         // JSON으로 변환할 수 있는지 확인
         guard let jsonData = reqBody.data(using: .utf8) else {
             print("Failed to convert reqBody to Data.")
@@ -607,11 +675,12 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
     }
     
     func createButton(title: String) -> UIButton {
-        let button = UIButton(type: .system)
+        var button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.addTarget(self, action: #selector(tabButtonTapped(_:)), for: .touchUpInside)
         return button
     }
+    
     
     @objc func tabButtonTapped(_ sender: UIButton) {
         print("Tab selected: \(sender.currentTitle ?? "")")
@@ -635,12 +704,145 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             tabIndex2 = 0
             getBodyFromResponse()
         }
+        // 바로 직전꺼
+        else if sender.currentTitle == "history" {
+            loadPrevRequestData()
+        }
+        // 예시로 미리 넣어둔 것
+        else if sender.currentTitle == "example" {
+            loadExampleRequestData()
+        }
+        // reset
+        else if sender.currentTitle == "reset"{
+            self.responseTextView.text = ""
+            self.reqBodyNote.text = ""
+            self.textField.text = ""
+        }
         else {
             tabIndex = 1
             requestTableInfo() // Table 형태 만들기
         }
         // Handle tab switching logic here
     }
+    
+    // 이전 조회한 요청 데이터(eg: reqBody) 셋팅해주기
+    func loadPrevRequestData(){
+        print("loadPrevRequestData Button Clicked")
+        tabIndex = 2
+        loadHistory()
+     //   requestBodyInfo()
+    }
+    // alert 띄워서 requestBody History 가져오기
+    func loadHistory(){
+        let customVC = UIViewController()
+        customVC.preferredContentSize = CGSize(width: 300, height: 200)
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.itemSize = CGSize(width: 280, height: 50) // 셀 크기
+        layout.minimumLineSpacing = 10 // 셀 간격
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+        collectionView.backgroundColor = .clear
+        
+        customVC.view.addSubview(collectionView)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: customVC.view.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: customVC.view.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: customVC.view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: customVC.view.trailingAnchor)
+        ])
+        
+        // UIAlertController 생성
+        let alert = UIAlertController(title: "History Select Item", message: nil, preferredStyle: .alert)
+        alert.setValue(customVC, forKey: "contentViewController")
+        
+        // 취소 버튼 추가
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        // Clear History
+        alert.addAction(UIAlertAction(title: "Clear", style: .default) { action in
+            self.clearAllHistory()
+        })
+        // Alert 표시
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func clearAllHistory(){
+        self.realmDao.dropRequestBodyInfo()
+        self.historyItems.removeAll()
+    }
+    
+    // 기본 예시로 들어간 요청 데이터 셋팅해주기
+    func loadExampleRequestData(){
+        print("loadExampleRequestData Button Clicked")
+        tabIndex = 2 // Body2
+        self.textField.text = "https://zmkbglobal.kbstar.com/deposit/prdct/DpostPrdctInq"
+        self.reqBodyNote.text = """
+        {
+
+                  "Scrno": "",
+
+                  "Task": {
+
+                      "bzwkCmnDvsn": {
+
+                         "operGroupCd": "",
+
+                         "brnCd": "",
+
+                         "bzwkGroupCd": ""
+
+                      },
+
+                      "inItem": {
+
+                        "prdctSbjctCd1": "",
+
+                        "bbrnCd": "",
+
+                        "joinWay": "",
+
+                        "serchCndn": "",
+
+                        "serchCtnt": "",
+
+                        "dmndPageCnt": "1",
+
+                        "screnDsplCnt": "100",
+
+                        "groupCoCd": "",
+
+                        "operGroupCd": "",
+
+                        "boPrdctPtrnCd": "02",
+
+                        "boPrdctSbjectcd": "",
+
+                        "wwwJoinYn": "",
+
+                        "dsplYn": "",
+
+                        "acnDstic": "01",
+
+                        "langDstic": "KOR",
+
+                        "ovsesPpsnCoptDstic": ""
+
+                      }
+
+                   }
+
+                }
+
+
+    """
+        requestBodyInfo()
+        
+    }
+    
     // 쿠키만 뽑아내기
     func getCookiesFromResponse(){
         self.responseTextView.text = self.cookieString
@@ -667,7 +869,10 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         
         reqBodyNote.isHidden = false
         // 전체 배경 색상을 회색으로 설정
-        reqBodyNote.backgroundColor = .lightGray
+        reqBodyNote.backgroundColor = .white
+        reqBodyNote.textColor = .black
+        reqBodyNote.layer.borderWidth = 1
+        reqBodyNote.layer.borderColor = UIColor.lightGray.cgColor
         reqBodyNote.delegate = self
         reqBodyNote.isScrollEnabled = true
         reqBodyNote.keyboardType = .default
@@ -708,13 +913,39 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         ])
         
     }
-    
+    // 응답 옆에 버튼 두기
     func setupResponseView() {
         let responseLabel = UILabel()
         responseLabel.text = "Response"
         responseLabel.textColor = .black
         responseLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(responseLabel)
+        
+        let exampleButton = createButton(title: "example")
+        let prevButton = createButton(title: "history")
+        let resetButton = createButton(title: "reset")
+        
+        exampleButton.translatesAutoresizingMaskIntoConstraints = false
+        exampleButton.isUserInteractionEnabled = true
+        exampleButton.layer.borderWidth = 1
+        exampleButton.layer.borderColor = UIColor.lightGray.cgColor
+        exampleButton.layer.cornerRadius = 10
+        
+        view.addSubview(exampleButton)
+        
+        prevButton.translatesAutoresizingMaskIntoConstraints = false
+        prevButton.isUserInteractionEnabled = true
+        prevButton.layer.borderWidth = 1
+        prevButton.layer.borderColor = UIColor.lightGray.cgColor
+        prevButton.layer.cornerRadius = 10
+        view.addSubview(prevButton)
+        
+        resetButton.translatesAutoresizingMaskIntoConstraints = false
+        resetButton.isUserInteractionEnabled = true
+        resetButton.layer.borderWidth = 1
+        resetButton.layer.borderColor = UIColor.lightGray.cgColor
+        resetButton.layer.cornerRadius = 10
+        view.addSubview(resetButton)
         
         responseTextView.backgroundColor = .white
         responseTextView.textColor = .black
@@ -727,7 +958,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         responseTextView.isScrollEnabled = true // 스크롤 가능
         responseTextView.isEditable = false // 수정 불가능
         responseTextView.contentInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-      //  view.addSubview(responseTextView)
+        //  view.addSubview(responseTextView)
         
         let responseTabStackView = UIStackView()
         responseTabStackView.axis = .horizontal
@@ -771,13 +1002,29 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         
         view.addSubview(responseTextView)
         responseTextView.layoutIfNeeded()
-    
+        
         NSLayoutConstraint.activate([
             // responseLabel Constraints
             responseLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
-            responseLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            responseLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            //responseLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             responseLabel.heightAnchor.constraint(equalToConstant: 30),
             
+            // 버튼관리
+            exampleButton.heightAnchor.constraint(equalToConstant: 30),
+            exampleButton.leadingAnchor.constraint(equalTo: responseLabel.trailingAnchor, constant: 5),
+            exampleButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
+            exampleButton.widthAnchor.constraint(equalToConstant: 90),
+            
+            prevButton.heightAnchor.constraint(equalToConstant: 30),
+            prevButton.leadingAnchor.constraint(equalTo: exampleButton.trailingAnchor, constant: 5),
+            prevButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
+            prevButton.widthAnchor.constraint(equalToConstant: 90),
+            
+            resetButton.heightAnchor.constraint(equalToConstant: 30),
+            resetButton.leadingAnchor.constraint(equalTo: prevButton.trailingAnchor, constant: 5),
+            resetButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10),
+            resetButton.widthAnchor.constraint(equalToConstant: 90),
             // borderView Constraints
             borderView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             borderView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
@@ -796,9 +1043,10 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
             responseTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             responseTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -5),
             
-
+            
         ])
     }
+    
     
     // MARK: UITableViewDataSource & Delegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -813,7 +1061,7 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         cell.valueTextField.text = item.value
         cell.checkBox.isSelected = item.checked
         cell.backgroundColor = .systemTeal
-    
+        
         
         cell.onTextChange = { [weak self] key, value in
             guard let self = self else { return }
@@ -866,3 +1114,4 @@ class ApiTabController: UIViewController, UITableViewDelegate, UITableViewDataSo
         return returnData
     }
 }
+

@@ -80,6 +80,7 @@ class MyCollectionViewCell: UICollectionViewCell {
     func refreshSubItems(_ items: Array<RequestModel>, shouldHide: Bool){
         
         print("shouldHide: \(shouldHide)")
+    
         if shouldHide {
             self.childCollectionView.isHidden = true
           //  self.childCollectionView.reloadData()
@@ -89,23 +90,21 @@ class MyCollectionViewCell: UICollectionViewCell {
             self.subItems = items
             self.childCollectionView.reloadData()
         }
+        
+//        self.childCollectionView.isHidden = false
+//        self.subItems = items
+//        self.childCollectionView.reloadData()
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         // 확장 상태 초기화
         isExpanded = false
-       // childCollectionView.isHidden = true // 숨김 상태로 초기화
-      //  subItems = [] // 데이터 초기화
-      //  childCollectionView.reloadData() // 서브 컬렉션 뷰 데이터 리로드
+        // childCollectionView.isHidden = true // 숨김 상태로 초기화
+        // subItems = [] // 데이터 초기화
+        childCollectionView.reloadData() // 서브 컬렉션 뷰 데이터 리로드
     }
     
-    func configure(with items: [RequestModel], expanded: Bool) {
-        self.subItems = items
-        self.isExpanded = expanded
-        childCollectionView.isHidden = !expanded
-        childCollectionView.reloadData()
-    }
 }
 
 extension MyCollectionViewCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -568,12 +567,13 @@ class CollectionTabController: UIViewController, UICollectionViewDelegate, UICol
                 parentCollectionView.performBatchUpdates({
                     parentCollectionView.reloadItems(at: [indexPath])
                 }, completion: { _ in
+                    tappedImageView.image = UIImage(systemName: self.isExpandedArray[indexPath.item] ? "arrow.up" : "arrow.down")
                     print("Updated expansion state: \(self.isExpandedArray[indexPath.item]) \(cell.shouldHideCells)")
                     // Refresh the sub items based on the expansion state
                     cell.refreshSubItems(Array(self.items[indexPath.item].requestList), shouldHide: cell.shouldHideCells)
                     //cell.configure(with: Array(self.items[indexPath.item].requestList), expanded: self.isExpandedArray[indexPath.item])
                     // Update arrow image based on expanded state
-                    tappedImageView.image = UIImage(systemName: self.isExpandedArray[indexPath.item] ? "arrow.up" : "arrow.down")
+                    
                 })
                 break
             }

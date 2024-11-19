@@ -251,4 +251,25 @@ class RealmDao {
             realm.delete(historyTB)
         }
     }
+    
+    // ReqBodyModel
+    func getRequestBodyInfo() -> Results<ReqBodyModel>{
+        let getRequestModel = realm.objects(ReqBodyModel.self)
+        return getRequestModel
+    }
+    
+    // insert Request Body Model
+    func insertReqBodyInfo(_ reqBodyModel: ReqBodyModel) {
+        try! realm.write {
+            realm.add(reqBodyModel)
+        }
+    }
+    
+    // remove all request body History
+    func dropRequestBodyInfo() {
+        try! realm.write {
+            let reqBodyTB = realm.objects(ReqBodyModel.self)
+            realm.delete(reqBodyTB)
+        }
+    }
 }

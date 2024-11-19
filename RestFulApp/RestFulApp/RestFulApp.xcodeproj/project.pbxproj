@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2002F1AD2CC76BAD003F0AA6 /* HistoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2002F1AC2CC76BAD003F0AA6 /* HistoryModel.swift */; };
 		2002F1AF2CC76BD0003F0AA6 /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2002F1AE2CC76BD0003F0AA6 /* HistoryViewController.swift */; };
+		2020084B2CEC773E003CBACB /* ReqBodyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2020084A2CEC773E003CBACB /* ReqBodyModel.swift */; };
 		204860B52C8FD55E006BC8A6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204860B42C8FD55E006BC8A6 /* AppDelegate.swift */; };
 		204860B72C8FD55E006BC8A6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204860B62C8FD55E006BC8A6 /* SceneDelegate.swift */; };
 		204860B92C8FD55E006BC8A6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204860B82C8FD55E006BC8A6 /* ViewController.swift */; };
@@ -67,6 +68,7 @@
 /* Begin PBXFileReference section */
 		2002F1AC2CC76BAD003F0AA6 /* HistoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryModel.swift; sourceTree = "<group>"; };
 		2002F1AE2CC76BD0003F0AA6 /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
+		2020084A2CEC773E003CBACB /* ReqBodyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReqBodyModel.swift; sourceTree = "<group>"; };
 		204860B12C8FD55E006BC8A6 /* RestFulApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RestFulApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		204860B42C8FD55E006BC8A6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		204860B62C8FD55E006BC8A6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				2093F25E2CB76E6000BA1E71 /* CollectionModel.swift */,
 				2093F2652CB78D9200BA1E71 /* RequestModel.swift */,
 				2002F1AC2CC76BAD003F0AA6 /* HistoryModel.swift */,
+				2020084A2CEC773E003CBACB /* ReqBodyModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -561,6 +564,7 @@
 				207DF0DD2CACD17500C834FE /* CustomTabBarController.swift in Sources */,
 				2002F1AD2CC76BAD003F0AA6 /* HistoryModel.swift in Sources */,
 				20CBB0452CC8DB5600A6F85B /* RealmDao.swift in Sources */,
+				2020084B2CEC773E003CBACB /* ReqBodyModel.swift in Sources */,
 				2093F2642CB787E200BA1E71 /* CollectionTabController.swift in Sources */,
 				204860B72C8FD55E006BC8A6 /* SceneDelegate.swift in Sources */,
 				2093F25F2CB76E6000BA1E71 /* CollectionModel.swift in Sources */,
